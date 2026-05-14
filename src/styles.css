@@ -1,0 +1,26 @@
+/* You can add global styles to this file, and also import other style files */
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+:root {
+  --verdePrincipal: #0D7377;
+}
+.btn-verde {
+  background-color: var(--verdePrincipal);
+  color: white;
+}
+
+.btn-verde:hover {
+  background-color: #0a5c5f;
+  color: white;
+}
+.fonte-titulo {
+  font-family: 'Merriweather Sans', sans-serif;
+  font-weight: 700;
+}
+
+.fonte-subtitulo {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 300;
+  font-size: 1.2rem;
+}

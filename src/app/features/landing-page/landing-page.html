@@ -1,0 +1,212 @@
+<nav class="navbar bg-white pt-2 shadow-sm">
+  <div class="container align-items-center justify-content-between">
+    <a class="navbar-brand fw-bold">
+      <!--Colocar a logo assim que tiver uma -->
+      <img src="#" alt="Logo" height="40">
+    </a>
+    <div class="d-flex align-items-center">
+      <button class="btn btn-verde me-2" (click)="abrirModal()" type="button">Entrar</button>
+      <button class="btn btn-outline-secondary" type="button">Cadastrar</button>
+    </div>
+  </div>
+</nav>
+
+
+
+<section class="principal py-5">
+  <div class="container">
+    <div class="row align-items-center">
+
+      <div class="col-md-6">
+        <h1 class="fw-bold display-5 fonte-titulo">
+  Conecte-se com <br>
+  <span style="color: var(--verdePrincipal)">Desenvolvedores</span> <br>
+  Especialistas
+</h1>
+<p class="text-muted mt-3 fonte-subtitulo">
+  A plataforma que une desenvolvedores que precisam
+  de ajuda com tutores especializados em tempo real.
+</p>
+<div class="mt-4 d-flex gap-3">
+  <button class="btn btn-verde px-5 py-3 fs-5 fw-bold">Começar agora →</button>
+  <button class="btn btn-outline-secondary px-5 py-3 fs-5">Ver Publicações</button>
+</div>
+      </div>
+
+      <div class="col-md-6 text-center">
+        <img src="assets/imagem-landing-page.png" alt="Ilustração" class="img-fluid">
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+
+<!-- melhorar esses cards depois em -->
+<section class="como-funciona py-5">
+  <div class="container">
+
+    <div class="text-center mb-5">
+      <h2 class="fw-bold fonte-titulo">Como funciona</h2>
+      <p class="text-muted fonte-subtitulo">Simples, rápido e eficiente</p>
+    </div>
+
+    <div class="row g-4">
+
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm p-4 h-100">
+          <div class="mb-3 fs-2" style="color: var(--verdePrincipal)">
+            <i class="bi bi-file-earmark-text"></i>
+          </div>
+          <h5 class="fw-bold">1. Crie uma Publicação</h5>
+          <p class="text-muted">
+            Descreva seu problema técnico, defina seu
+            orçamento e as tecnologias envolvidas.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm p-4 h-100">
+          <div class="mb-3 fs-2" style="color: var(--verdePrincipal)">
+            <i class="bi bi-people"></i>
+          </div>
+          <h5 class="fw-bold">2. Receba Candidaturas</h5>
+          <p class="text-muted">
+            Tutores especializados visualizam sua
+            solicitação e se candidatam para ajudar.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm p-4 h-100">
+          <div class="mb-3 fs-2" style="color: var(--verdePrincipal)">
+            <i class="bi bi-chat-dots"></i>
+          </div>
+          <h5 class="fw-bold">3. Conecte-se em Tempo Real</h5>
+          <p class="text-muted">
+            Converse diretamente com o tutor escolhido e
+            resolva seu problema rapidamente.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+
+<section class="py-5 por-que">
+  <div class="container">
+    <div class="row align-items-center">
+
+      <div class="col-md-6">
+        <h2 class="fw-bold fonte-titulo mb-4">Por que escolher o CodeAssist?</h2>
+
+        <div class="d-flex align-items-start mb-4">
+          <i class="bi bi-check-square fs-4 me-3" style="color: var(--verdePrincipal)"></i>
+          <div>
+            <h6 class="fw-bold mb-1">Tutores Especializados</h6>
+            <p class="text-muted fonte-subtitulo mb-0">Profissionais experientes em diversas stacks tecnológicas.</p>
+          </div>
+        </div>
+
+        <div class="d-flex align-items-start mb-4">
+          <i class="bi bi-check-square fs-4 me-3" style="color: var(--verdePrincipal)"></i>
+          <div>
+            <h6 class="fw-bold mb-1">Suporte em Tempo Real</h6>
+            <p class="text-muted fonte-subtitulo mb-0">Chat integrado para comunicação instantânea.</p>
+          </div>
+        </div>
+
+        <div class="d-flex align-items-start mb-4">
+          <i class="bi bi-check-square fs-4 me-3" style="color: var(--verdePrincipal)"></i>
+          <div>
+            <h6 class="fw-bold mb-1">Orçamento Flexível</h6>
+            <p class="text-muted fonte-subtitulo mb-0">Defina sua faixa de preço e encontre tutores compatíveis.</p>
+          </div>
+        </div>
+
+        <div class="d-flex align-items-start mb-4">
+          <i class="bi bi-check-square fs-4 me-3" style="color: var(--verdePrincipal)"></i>
+          <div>
+            <h6 class="fw-bold mb-1">Sistema de Avaliação</h6>
+            <p class="text-muted fonte-subtitulo mb-0">Avalie tutores e ajude a comunidade a crescer.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="col-md-6 text-center">
+        <img src="assets/imagem-landing-page2.png" alt="Ilustração" class="img-fluid">
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+
+<section class="py-5 text-center text-white" style="background-color: var(--verdePrincipal)">
+  <div class="container">
+    <h2 class="fw-bold fonte-titulo mb-3">Pronto para começar ?</h2>
+    <p class="fonte-subtitulo mb-4">
+      Junte-se à comunidade Code Assist e transforme a forma como você resolve problemas técnicos.
+    </p>
+    <button class="btn btn-light px-5 py-4 fw-bold rounded-4 fs-5" style="color: var(--verdePrincipal)">
+      Criar Conta Gratuita
+    </button>
+  </div>
+</section>
+
+<footer class="py-5" style="background-color: #1a1f2e">
+  <div class="container">
+    <div class="row text-white g-4">
+
+
+      <!--Acho que da pra botar mais texto aqui ou aumentar esse sei la-->
+      <div class="col-md-5">
+        <p class="text-white-50 footer-descricao">
+          Plataforma interativa para desenvolvedores que buscam e oferecem suporte técnico especializado.
+        </p>
+      </div>
+
+      <div class="col-md-4 ps-md-5">
+        <h6 class="fw-bold mb-4 fs-5">Produto</h6>
+        <ul class="list-unstyled">
+          <li class="mb-3"><a href="#" class="text-white-50 text-decoration-none footer-link">Funcionalidades</a></li>
+          <li class="mb-3"><a href="#" class="text-white-50 text-decoration-none footer-link">Preços</a></li>
+          <li class="mb-3"><a href="#" class="text-white-50 text-decoration-none footer-link">FAQ</a></li>
+        </ul>
+      </div>
+
+      <div class="col-md-3">
+        <h6 class="fw-bold mb-4 fs-5">Empresa</h6>
+        <ul class="list-unstyled">
+          <li class="mb-3"><a href="#" class="text-white-50 text-decoration-none footer-link">Sobre</a></li>
+          <li class="mb-3"><a href="#" class="text-white-50 text-decoration-none footer-link">Blog</a></li>
+          <li class="mb-3"><a href="#" class="text-white-50 text-decoration-none footer-link">Contato</a></li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</footer>
+
+
+<div class="py-3 text-center text-white-50" style="background-color: #151a27">
+  <small>© 2026 Code Assist. Todos os direitos reservados.</small>
+</div>
+
+
+<!-- Componente de Login (escondido pelo Bootstrap) -->
+<div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <app-login></app-login>
+    </div>
+  </div>
+</div>

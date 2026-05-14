@@ -1,0 +1,38 @@
+.sidenav-container {
+  height: 100vh;
+}
+
+.sidenav {
+  width: 240px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidenav-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px;
+}
+
+.sidenav-title {
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.menu-label {
+  font-size: 0.75rem;
+  color: #888;
+  padding: 16px 16px 4px;
+  margin: 0;
+}
+
+.sidenav-footer {
+  margin-top: auto;
+}
+
+.menu-ativo {
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  color: var(--verdePrincipal);
+}
