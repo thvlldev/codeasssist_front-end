@@ -6,7 +6,7 @@
     </a>
     <div class="d-flex align-items-center">
       <button class="btn btn-verde me-2" (click)="abrirModal()" type="button">Entrar</button>
-      <button class="btn btn-outline-secondary" type="button">Cadastrar</button>
+      <button class="btn btn-outline-secondary" (click)="abrirModalCadastro()" type="button">Cadastrar</button>
     </div>
   </div>
 </nav>
@@ -28,7 +28,7 @@
   de ajuda com tutores especializados em tempo real.
 </p>
 <div class="mt-4 d-flex gap-3">
-  <button class="btn btn-verde px-5 py-3 fs-5 fw-bold">Começar agora →</button>
+  <button (click)="abrirModalCadastro()"   class="btn btn-verde px-5 py-3 fs-5 fw-bold">Começar agora →</button>
   <button class="btn btn-outline-secondary px-5 py-3 fs-5">Ver Publicações</button>
 </div>
       </div>
@@ -156,7 +156,7 @@
     <p class="fonte-subtitulo mb-4">
       Junte-se à comunidade Code Assist e transforme a forma como você resolve problemas técnicos.
     </p>
-    <button class="btn btn-light px-5 py-4 fw-bold rounded-4 fs-5" style="color: var(--verdePrincipal)">
+    <button class="btn btn-light px-5 py-4 fw-bold rounded-4 fs-5"  (click)="abrirModalCadastro()"  style="color: var(--verdePrincipal)">
       Criar Conta Gratuita
     </button>
   </div>
@@ -202,11 +202,21 @@
 </div>
 
 
-<!-- Componente de Login (escondido pelo Bootstrap) -->
+
+
 <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <app-login></app-login>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade" id="cadastroModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <app-cadastro></app-cadastro>
     </div>
   </div>
 </div>

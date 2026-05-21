@@ -7,20 +7,20 @@
       <a routerLink="/" class="d-inline-block mb-4">
         <img src="assets/logo.png" alt="Code Assist" height="40">
       </a>
-      <h1 class="h3 fw-bold text-dark mb-2">Bem-vindo de volta</h1>
-      <p class="text-secondary">Entre na sua conta para continuar</p>
+      <h1 class="h3 fw-bold text-dark mb-2">Bem-vindo</h1>
+      <p class="text-secondary">Crie sua conta para acessar</p>
     </div>
 
     <div class="card border-0 shadow-sm p-4 rounded-4">
 
-      <!-- Social Login -->
+      <!-- Social cadastro -->
       <div class="d-grid gap-2 mb-4">
-        <button (click)="handleGoogleLogin()" class="btn btn-outline-secondary d-flex align-items-center justify-content-center gap-2 py-2">
+        <button (click)="handleGooglecadastro()" class="btn btn-outline-secondary d-flex align-items-center justify-content-center gap-2 py-2">
           <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" alt="Google">
           Continuar com Google
         </button>
 
-        <button (click)="handleGithubLogin()" class="btn btn-dark d-flex align-items-center justify-content-center gap-2 py-2">
+        <button (click)="handleGithubcadastro()" class="btn btn-dark d-flex align-items-center justify-content-center gap-2 py-2">
           <i class="bi bi-github fs-5"></i>
           Continuar com GitHub
         </button>
@@ -30,12 +30,12 @@
       <div class="position-relative mb-4 text-center">
         <hr class="text-muted">
         <span class="position-absolute top-50 start-50 translate-middle bg-white px-2 text-muted small">
-          Ou continue com e-mail
+          Ou cadastre-se por email
         </span>
       </div>
 
       <!-- Form -->
-      <form (ngSubmit)="handleSubmit()" #loginForm="ngForm">
+      <form (ngSubmit)="handleSubmit()" #cadastroForm="ngForm">
         <div class="mb-3">
           <label for="email" class="form-label small fw-medium text-secondary">E-mail</label>
           <div class="input-group">
@@ -46,7 +46,7 @@
               type="email"
               id="email"
               name="email"
-              [(ngModel)]="loginData.email"
+              [(ngModel)]="cadastroData.email"
               required
               class="form-control border-start-0 ps-0"
               placeholder="seu@email.com"
@@ -64,11 +64,12 @@
               type="password"
               id="password"
               name="password"
-              [(ngModel)]="loginData.password"
+              [(ngModel)]="cadastroData.password"
               required
               class="form-control border-start-0 ps-0"
               placeholder="••••••••"
             >
+
           </div>
         </div>
 
@@ -79,21 +80,21 @@
               class="form-check-input"
               id="remember"
               name="rememberMe"
-              [(ngModel)]="loginData.rememberMe"
+              [(ngModel)]="cadastroData.rememberMe"
             >
             <label class="form-check-label small text-secondary" for="remember">Lembrar de mim</label>
           </div>
           <a href="#" class="small text-decoration-none text-primary">Esqueceu a senha?</a>
         </div>
 
-        <button type="submit" [disabled]="!loginForm.valid" class="btn btn-primary w-100 py-2 fw-bold">
+        <button type="submit" [disabled]="!cadastroForm.valid" class="btn btn-primary w-100 py-2 fw-bold">
           Entrar
         </button>
       </form>
 
       <p class="mt-4 text-center small text-secondary">
-        Não tem uma conta?
-        <a (click)="abrirModalCadastro()" class="text-primary fw-bold text-decoration-none">Cadastre-se</a>
+        Já possui uma conta?
+        <a (click)="abrirModal()" class="text-primary fw-bold text-decoration-none">Faça login</a>
       </p>
     </div>
   </div>

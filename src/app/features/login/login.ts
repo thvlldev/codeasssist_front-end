@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
+declare var bootstrap: any;
+
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -11,6 +13,25 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./login.css']
 })
 export class LoginComponent {
+
+  abrirModalCadastro() {
+
+  const loginEl = document.getElementById('loginModal');
+  const cadastroEl = document.getElementById('cadastroModal');
+
+  const loginModal = bootstrap.Modal.getInstance(loginEl);
+
+  loginEl?.addEventListener('hidden.bs.modal', () => {
+
+    const cadastroModal = new bootstrap.Modal(cadastroEl);
+    cadastroModal.show();
+
+  }, { once: true });
+
+  loginModal.hide();
+}
+
+
   // Objeto para bind do formulário
   loginData = {
     email: '',
@@ -21,7 +42,6 @@ export class LoginComponent {
   constructor(private router: Router) {}
 
   handleSubmit() {
-    // No Angular, usamos o Router para navegação SPA
     console.log('Dados do login:', this.loginData);
     this.router.navigate(['/dashboard']);
   }
@@ -33,4 +53,9 @@ export class LoginComponent {
   handleGithubLogin() {
     console.log('GitHub login');
   }
+
+
+
+
+
 }
