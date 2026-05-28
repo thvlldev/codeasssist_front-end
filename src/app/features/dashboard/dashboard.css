@@ -1,0 +1,11 @@
+.retangulo {
+    border: solid black 1px;
+    width: 20rem
+}
+.retangulo2{
+    border: solid black 1px;
+}
+.retangulo3{
+    border: solid green 3px;
+    border-style: dotted 
+}

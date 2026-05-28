@@ -14,24 +14,6 @@ declare var bootstrap: any;
 })
 export class LoginComponent {
 
-  abrirModalCadastro() {
-
-  const loginEl = document.getElementById('loginModal');
-  const cadastroEl = document.getElementById('cadastroModal');
-
-  const loginModal = bootstrap.Modal.getInstance(loginEl);
-
-  loginEl?.addEventListener('hidden.bs.modal', () => {
-
-    const cadastroModal = new bootstrap.Modal(cadastroEl);
-    cadastroModal.show();
-
-  }, { once: true });
-
-  loginModal.hide();
-}
-
-
   // Objeto para bind do formulário
   loginData = {
     email: '',
@@ -41,9 +23,68 @@ export class LoginComponent {
 
   constructor(private router: Router) {}
 
+  abrirModalCadastro() {
+
+    const loginEl = document.getElementById('loginModal');
+    const cadastroEl = document.getElementById('cadastroModal');
+
+    if (!loginEl || !cadastroEl) return;
+
+    const loginModal = bootstrap.Modal.getInstance(loginEl);
+
+    loginEl.addEventListener(
+      'hidden.bs.modal',
+      () => {
+
+        const cadastroModal = new bootstrap.Modal(cadastroEl);
+        cadastroModal.show();
+
+      },
+      { once: true }
+    );
+
+    loginModal?.hide();
+  }
+
   handleSubmit() {
+
     console.log('Dados do login:', this.loginData);
-    this.router.navigate(['/dashboard']);
+
+    const loginEl = document.getElementById('loginModal');
+
+    if (loginEl) {
+
+      const modal = bootstrap.Modal.getInstance(loginEl);
+
+      // Espera o modal fechar totalmente
+      loginEl.addEventListener(
+        'hidden.bs.modal',
+        () => {
+
+          // Remove resíduos do Bootstrap
+          document.body.classList.remove('modal-open');
+
+          const backdrops =
+            document.getElementsByClassName('modal-backdrop');
+
+          while (backdrops.length > 0) {
+            backdrops[0].parentNode?.removeChild(backdrops[0]);
+          }
+
+          // Navega para dashboard
+          this.router.navigate(['/dashboard']);
+
+        },
+        { once: true }
+      );
+
+      modal?.hide();
+
+    } else {
+
+      // fallback caso não encontre modal
+      this.router.navigate(['/dashboard']);
+    }
   }
 
   handleGoogleLogin() {
@@ -53,9 +94,4 @@ export class LoginComponent {
   handleGithubLogin() {
     console.log('GitHub login');
   }
-
-
-
-
-
 }
