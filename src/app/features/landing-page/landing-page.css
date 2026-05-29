@@ -25,3 +25,7 @@
 .footer-descricao {
   font-size: 1rem;
 }
+div.modal-content {
+  border: 0 !important;
+  box-shadow: none !important;
+}

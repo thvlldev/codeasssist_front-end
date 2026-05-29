@@ -1,0 +1,36 @@
+.ob-dot {
+  width: 28px;
+  height: 4px;
+  border-radius: 99px;
+  background: #dee2e6;
+  transition: background 0.3s;
+}
+
+.ob-dot.active {
+  background: #0D7377;
+}
+
+.ob-option {
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1.5px solid #dee2e6;
+  background: #fff;
+  text-align: left;
+  font-size: 14px;
+  color: #1a1a1a;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-weight: 500;
+}
+
+.ob-option:hover {
+  border-color: #0D7377;
+  color: #0D7377;
+  background: #f0faf9;
+}
+
+.form-control:focus {
+  border-color: #0D7377 !important;
+  box-shadow: 0 0 0 3px rgba(13, 115, 119, 0.12) !important;
+  outline: none;
+}

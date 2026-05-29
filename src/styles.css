@@ -4,6 +4,7 @@ html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 :root {
   --verdePrincipal: #0D7377;
+  --bs-modal-border-width: 0;
 }
 .btn-verde {
   background-color: var(--verdePrincipal);
@@ -23,4 +24,25 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   font-family: 'Roboto', sans-serif;
   font-weight: 300;
   font-size: 1.2rem;
+}
+
+.input-group:focus-within {
+  border-color: #0D7377 !important;
+  box-shadow: 0 0 0 3px rgba(13, 115, 119, 0.12) !important;
+  border-radius: 8px;
+}
+
+
+.modal-content {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.modal-dialog {
+  background: transparent !important;
+}
+
+.modal-backdrop.show {
+  opacity: 0.5;
 }

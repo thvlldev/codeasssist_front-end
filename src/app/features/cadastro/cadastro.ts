@@ -15,9 +15,12 @@ declare var bootstrap: any;
 export class CadastroComponent {
 
   cadastroData = {
+    nome: '',
     email: '',
     password: '',
-    rememberMe: false
+    confirmPassword: '',
+    rememberMe: false,
+    termos: false
   };
 
   constructor(private router: Router) {}
@@ -70,8 +73,8 @@ export class CadastroComponent {
             backdrops[0].parentNode?.removeChild(backdrops[0]);
           }
 
-          // Navega para dashboard
-          this.router.navigate(['/dashboard']);
+          // Navega para onboarding
+          this.router.navigate(['/onboarding']);
 
         },
         { once: true }
@@ -82,7 +85,7 @@ export class CadastroComponent {
     } else {
 
       // fallback caso modal não exista
-      this.router.navigate(['/dashboard']);
+      this.router.navigate(['/onboarding']);
     }
   }
 
