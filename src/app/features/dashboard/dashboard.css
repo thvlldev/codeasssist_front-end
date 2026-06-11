@@ -1,11 +1,18 @@
-.retangulo {
-    border: solid black 1px;
-    width: 20rem
+.container-fluid {
+  min-height: 100vh;
+  background: #f8fafc;
 }
-.retangulo2{
-    border: solid black 1px;
+
+.card {
+  border: none;
+  border-radius: 12px;
 }
-.retangulo3{
-    border: solid green 3px;
-    border-style: dotted 
+
+.card-header {
+  background: white;
+  font-weight: 600;
+}
+
+.badge {
+  padding: 8px 12px;
 }
