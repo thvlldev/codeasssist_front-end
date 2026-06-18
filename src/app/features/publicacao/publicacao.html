@@ -1,22 +1,6 @@
 <div class="d-flex" id="wrapper">
-  <div class="bg-white border-end" id="sidebar-wrapper">
-    <div class="sidebar-heading text-center py-4 primary-text fs-4 fw-bold text-uppercase border-bottom">
-      <i class="bi bi-code-slash me-2"></i>CodeAssist
-    </div>
-    <div class="list-group list-group-flush my-3">
-      <a href="#" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
-        <i class="bi bi-speedometer2 me-2"></i>Dashboard
-      </a>
-      <a href="#" class="list-group-item list-group-item-action bg-transparent second-text fw-bold active-menu-item">
-        <i class="bi bi-journal-text me-2"></i>Publicações
-      </a>
-      <a href="#" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
-        <i class="bi bi-person-circle me-2"></i>Perfil
-      </a>
-      <a href="#" class="list-group-item list-group-item-action bg-transparent text-danger fw-bold position-absolute bottom-0 mb-3" style="width: 230px;">
-        <i class="bi bi-box-arrow-left me-2"></i>Sair
-      </a>
-    </div>
+  <div>
+    <app-sidenav></app-sidenav>
   </div>
   <div id="page-content-wrapper" class="w-100">
     <nav class="navbar navbar-expand-lg navbar-dark bg-purple px-4 py-3 shadow-sm d-flex justify-content-between">
@@ -25,7 +9,7 @@
           {{ viewAtual === 'lista' ? 'Suas Publicações' : 'Nova Solicitação de Mentoria' }}
         </h2>
       </div>
-      <button class="btn btn-light fw-bold text-purple rounded-pill px-3" 
+      <button class="btn btn-light fw-bold text-purple rounded-pill px-3"
               (click)="viewAtual = viewAtual === 'lista' ? 'nova' : 'lista'">
         <i class="bi" [ngClass]="viewAtual === 'lista' ? 'bi-plus-lg' : 'bi-arrow-left'"></i>
         {{ viewAtual === 'lista' ? ' Nova Publicação' : ' Voltar ao Mural' }}
@@ -41,9 +25,9 @@
               <span class="input-group-text bg-white border-0 ps-3 text-muted">
                 <i class="bi bi-search"></i>
               </span>
-              <input type="text" 
-                     class="form-control border-0 ps-2 py-2" 
-                     placeholder="Buscar por título ou descrição..." 
+              <input type="text"
+                     class="form-control border-0 ps-2 py-2"
+                     placeholder="Buscar por título ou descrição..."
                      [(ngModel)]="termoBusca"
                      (input)="filtrarPublicacoes()" />
             </div>
@@ -66,7 +50,7 @@
             <div class="card h-100 card-custom border-0 shadow-sm rounded-4">
               <div class="card-body p-4 d-flex flex-column">
                 <div class="d-flex justify-content-between align-items-start mb-3">
-                  <span class="badge rounded-pill" 
+                  <span class="badge rounded-pill"
                         [ngClass]="pub.publicacaoStatus === 1 ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary'">
                     {{ pub.publicacaoStatus === 1 ? 'Em aberto' : 'Encerrada' }}
                   </span>
@@ -103,26 +87,26 @@
         <div class="col-xl-8 col-lg-10">
           <div class="card border-0 shadow-sm rounded-4 p-4">
             <form (ngSubmit)="salvarPublicacao()">
-              
+
               <div class="mb-4">
                 <label for="titulo" class="form-label fw-semibold text-dark">Título da Solicitação *</label>
-                <input type="text" 
-                       id="titulo" 
-                       class="form-control form-control-custom" 
-                       placeholder="Seja descritivo: ex: Erro de NullPointerException no Spring Boot" 
-                       [(ngModel)]="novaPublicacao.publicacaoTitulo" 
-                       name="titulo" 
+                <input type="text"
+                       id="titulo"
+                       class="form-control form-control-custom"
+                       placeholder="Seja descritivo: ex: Erro de NullPointerException no Spring Boot"
+                       [(ngModel)]="novaPublicacao.publicacaoTitulo"
+                       name="titulo"
                        required />
               </div>
 
               <div class="mb-4">
                 <label for="conteudo" class="form-label fw-semibold text-dark">O que você precisa ajuda para resolver? *</label>
-                <textarea id="conteudo" 
-                          class="form-control form-control-custom" 
-                          rows="6" 
-                          placeholder="Explique detalhadamente o problema ou os conceitos que deseja entender com o mentor..." 
-                          [(ngModel)]="novaPublicacao.publicacaoConteudo" 
-                          name="conteudo" 
+                <textarea id="conteudo"
+                          class="form-control form-control-custom"
+                          rows="6"
+                          placeholder="Explique detalhadamente o problema ou os conceitos que deseja entender com o mentor..."
+                          [(ngModel)]="novaPublicacao.publicacaoConteudo"
+                          name="conteudo"
                           required></textarea>
               </div>
 
@@ -148,7 +132,7 @@
                   Tecnologias Envolvidas * <small class="text-muted fw-normal">(Selecione até 5)</small>
                 </label>
                 <div class="d-flex flex-wrap gap-2 mt-2">
-                  <button type="button" 
+                  <button type="button"
                           *ngFor="let tech of tecnologiasDisponiveis"
                           class="btn btn-tag transition-all"
                           [ngClass]="novaPublicacao.tecnologiasIds.includes(tech.tecnologiaId) ? 'btn-tag-active' : 'btn-tag-inactive'"
@@ -174,4 +158,8 @@
 
     </div>
   </div>
+</div>
+
+<div>
+  <app-footer></app-footer>
 </div>

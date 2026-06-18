@@ -1,7 +1,7 @@
 /* Paleta de Cores e Identidade Visual CodeAssist */
 :root {
-  --purple-main: #6f42c1;
-  --purple-hover: #59339e;
+  --verdePrincipal: #0D7377;
+  --green-hover: #02462c;
   --bg-light: #f8f9fa;
 }
 
@@ -21,7 +21,7 @@
 
 #sidebar-wrapper .sidebar-heading {
   padding: 0.875rem 1.25rem;
-  color: #6f42c1;
+  color: #0D7377;
 }
 
 #sidebar-wrapper .list-group {
@@ -40,31 +40,31 @@
 
 /* Navbar Roxa Superior */
 .bg-purple {
-  background-color: #6f42c1 !important;
+  background-color: #0D7377 !important;
 }
 
 .text-purple {
-  color: #6f42c1 !important;
+  color: #0D7377 !important;
 }
 
 .btn-purple {
-  background-color: #6f42c1;
+  background-color: #0D7377;
   color: white;
   border: none;
 }
 
 .btn-purple:hover {
-  background-color: #59339e;
+  background-color: #0D7377;
   color: white;
 }
 
 .btn-outline-purple {
-  color: #6f42c1;
-  border-color: #6f42c1;
+  color: #0D7377;
+  border-color: #0D7377;
 }
 
 .btn-outline-purple:hover {
-  background-color: #6f42c1;
+  background-color: #0D7377;
   color: white;
 }
 
@@ -82,7 +82,7 @@
 .text-truncate-3 {
   display: -webkit-box;
   -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;  
+  -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
@@ -107,7 +107,7 @@
 }
 
 .form-control-custom:focus {
-  border-color: #6f42c1;
+  border-color: #0D7377;
   box-shadow: 0 0 0 0.25rem rgba(111, 66, 193, 0.25);
 }
 

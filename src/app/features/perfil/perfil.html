@@ -1,0 +1,216 @@
+<div
+  class="container-fluid bg-light min-vh-100 py-4"
+  *ngIf="perfil"
+>
+
+  <div class="row g-4">
+
+    <!-- CARD PERFIL -->
+
+    <div class="col-lg-4">
+
+      <div class="card shadow-sm border-0">
+
+        <div class="card-body text-center">
+
+          <div class="avatar">
+            {{ perfil.usuario.usuarioNome.charAt(0) }}
+          </div>
+
+          <h2 class="mt-4">
+            {{ perfil.usuario.usuarioNome }}
+          </h2>
+
+          <p class="text-muted">
+            Mentor Especialista
+          </p>
+
+          <button
+            class="btn btn-outline-secondary"
+          >
+            Editar Perfil
+          </button>
+
+          <div class="row mt-4">
+
+            <div class="col">
+              <h3>
+                ⭐
+                {{ perfil.usuario.mentorMediaAvaliacao }}
+              </h3>
+
+              <small>
+                Avaliação
+              </small>
+            </div>
+
+            <div class="col">
+              <h3>
+                {{ perfil.usuario.totalTrabalhos }}
+              </h3>
+
+              <small>
+                Trabalhos
+              </small>
+            </div>
+
+          </div>
+
+          <hr>
+
+          <div class="text-start">
+
+            <p>
+              📍 {{ perfil.usuario.localizacao }}
+            </p>
+
+            <p>
+              📅 Membro desde
+              {{ perfil.usuario.usuarioDataCadastro }}
+            </p>
+
+            <p>
+              ✉️
+              {{ perfil.usuario.usuarioEmail }}
+            </p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- PREÇO -->
+
+      <div class="card mt-4 border-0 shadow-sm">
+
+        <div class="card-body">
+
+          <h4>Taxa por Hora</h4>
+
+          <h1 class="text-success">
+
+            R$
+            {{ perfil.usuario.mentorPrecoHora }}
+
+          </h1>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- LADO DIREITO -->
+
+    <div class="col-lg-8">
+
+      <!-- SOBRE -->
+
+      <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-body">
+
+          <h2>Sobre</h2>
+
+          <p>
+            {{ perfil.usuario.mentorDescricao }}
+          </p>
+
+        </div>
+
+      </div>
+
+      <!-- STACK -->
+
+      <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-body">
+
+          <h2>Stack Tecnológica</h2>
+
+          <div class="mt-3">
+
+            <span
+              *ngFor="let tecnologia of perfil.tecnologias"
+              class="badge-stack"
+            >
+              {{ tecnologia.tecnologiaNome }}
+            </span>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- TRABALHOS -->
+
+      <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-body">
+
+          <h2>
+            Trabalhos Recentes
+          </h2>
+
+          <div
+            *ngFor="
+              let trabalho
+              of perfil.trabalhosRecentes
+            "
+            class="trabalho"
+          >
+
+            {{ trabalho.publicacaoTitulo }}
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- AVALIAÇÕES -->
+
+      <div class="card border-0 shadow-sm">
+
+        <div class="card-body">
+
+          <h2>
+            Avaliações
+            ({{ perfil.usuario.totalAvaliacoes }})
+          </h2>
+
+          <div
+            *ngFor="
+              let avaliacao
+              of perfil.avaliacoes
+            "
+            class="avaliacao"
+          >
+
+            <h4>
+              {{ avaliacao.clienteNome }}
+            </h4>
+
+            <p>
+              ⭐ {{ avaliacao.avaliacaoValor }}
+            </p>
+
+            <p>
+              {{ avaliacao.avaliacaoComentario }}
+            </p>
+
+            <hr>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

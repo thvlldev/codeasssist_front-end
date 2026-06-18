@@ -1,23 +1,25 @@
-import { Component, OnInit, inject } from '@angular/core'; // <-- AGORA SIM: 'inject' importado do @angular/core
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule, NgIf, NgForOf, CurrencyPipe } from '@angular/common';
 
-// Importação da interface/model atualizada com os campos do banco de dados
+
 import { DashboardResponse } from '../../model/dashboard.model';
 
-// Importação do serviço de Dashboard
-import { DashboardService } from '../../services/dashboard.service'; 
+
+import { DashboardService } from '../../services/dashboard.service';
+import { Sidenav } from "../../shared/sidenav/sidenav";
+import { Footer } from '../../shared/footer/footer';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, NgIf, NgForOf, CurrencyPipe],
-  providers: [DashboardService], // Garante o provider local se não estiver global
-  templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.css']
+  imports: [CommonModule, NgIf, NgForOf, CurrencyPipe, Sidenav, Footer],
+  providers: [DashboardService],
+  templateUrl: './dashboard.html',
+  styleUrls: ['./dashboard.css']
 })
 export class DashboardComponent implements OnInit {
-  
-  // Injeção limpa e direta usando o inject() importado do core
+
+
   private dashboardService = inject(DashboardService);
 
   dashboard!: DashboardResponse;
@@ -31,8 +33,8 @@ export class DashboardComponent implements OnInit {
 
   carregarDados(): void {
     this.carregando = true;
-    
-    this.dashboardService.obterDadosDashboard().subscribe({
+
+    this.dashboardService.buscarDashboard().subscribe({
       next: (dados) => {
         this.dashboard = dados;
         this.carregando = false;

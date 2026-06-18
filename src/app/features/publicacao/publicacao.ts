@@ -1,28 +1,33 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Sidenav } from '../../shared/sidenav/sidenav';
+import { Footer } from '../../shared/footer/footer';
 
 // Importando as interfaces de modelo (ajustadas ao banco de dados)
 import { Publicacao, NovaPublicacaoPayload, Tecnologia } from '../../model/publicacao.model';
 
 // Importando o serviço externo que lida com o HttpClient
 import { PublicacaoService } from '../../services/publicacao.service';
+import { DashboardComponent } from "../dashboard/dashboard";
+
+
 
 @Component({
   selector: 'app-publicacoes',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, DashboardComponent, Sidenav, Footer],
   templateUrl: './publicacao.html',
   styleUrls: ['./publicacao.css']
 })
 export class PublicacoesComponent implements OnInit {
   // Define se a tela exibe a 'lista' (feed) ou o formulário de 'nova' publicação
   viewAtual: 'lista' | 'nova' = 'lista';
-  
+
   // Estados da aplicação
   publicacoes: Publicacao[] = [];
   publicacoesFiltradas: Publicacao[] = [];
-  tecnologiasDisponiveis: Tecnologia[] = []; 
+  tecnologiasDisponiveis: Tecnologia[] = [];
   termoBusca: string = '';
   carregando: boolean = false;
 
@@ -108,15 +113,15 @@ export class PublicacoesComponent implements OnInit {
         alert('Publicação salva com sucesso!');
         this.viewAtual = 'lista';
         this.carregarPublicacoes(); // Recarrega o feed atualizado do banco
-        
+
         // Reseta o formulário para o estado inicial limpo
-        this.novaPublicacao = { 
-          publicacaoTitulo: '', 
-          publicacaoConteudo: '', 
-          publicacaoOrcamentoMin: 0, 
-          publicacaoOrcamentoMax: 0, 
-          usuarioId: 1, 
-          tecnologiasIds: [] 
+        this.novaPublicacao = {
+          publicacaoTitulo: '',
+          publicacaoConteudo: '',
+          publicacaoOrcamentoMin: 0,
+          publicacaoOrcamentoMax: 0,
+          usuarioId: 1,
+          tecnologiasIds: []
         };
       },
       error: (err) => {
