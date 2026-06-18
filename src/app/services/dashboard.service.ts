@@ -16,7 +16,7 @@ import { DashboardResponse } from '../model/dashboard.model';
 export class DashboardService {
 
   private readonly API =
-    'http://localhost:8080/dashboard';
+    'http://academico3.rj.senac.br/20261prjint3manha-mentoria/api/usuarios';
 
   constructor(
     private http: HttpClient

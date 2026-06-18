@@ -1,47 +1,31 @@
 export interface DashboardResponse {
-
   usuario: DashboardUsuario;
-
   metricas: DashboardMetricas;
-
   publicacoesRecentes: DashboardPublicacao[];
-
 }
 
 export interface DashboardUsuario {
-
-  id: number;
-
-  nome: string;
-
-  email: string;
-
-  stack: string;
-
-  descricao: string;
-
+  usuarioId: number;
+  usuarioNome: string;
+  usuarioEmail: string;
+  usuarioTipoUsuario: number;
+  usuarioDataCadastro: string;
+  usuarioStatus: number;
+  clienteStack?: string;
+  usuarioDescricao?: string;
 }
 
 export interface DashboardMetricas {
-
   totalPublicacoes: number;
-
   totalRespostasRecebidas: number;
-
   publicacoesAbertas: number;
-
   valorTotalInvestido: number;
-
 }
 
 export interface DashboardPublicacao {
-
-  id: number;
-
-  conteudo: string;
-
-  status: number;
-
+  publicacaoId: number;
+  publicacaoTitulo: string;
+  publicacaoConteudo: string;
+  publicacaoStatus: number; 
   totalRespostas: number;
-
 }

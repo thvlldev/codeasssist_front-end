@@ -1,4 +1,4 @@
-import {
+/* import {
   HttpInterceptorFn
 } from '@angular/common/http';
 
@@ -31,3 +31,4 @@ HttpInterceptorFn = (
   return next(request);
 
 };
+ */
