@@ -1,3 +1,4 @@
+import { Footer } from './shared/footer/footer';
 import { Component } from '@angular/core';
 import { Routes } from '@angular/router';
 import { LandingPageComponent } from './features/landing-page/landing-page';
@@ -6,17 +7,20 @@ import { OnboardingComponent } from './features/onboarding/onboarding';
 import { PublicacoesComponent } from './features/publicacao/publicacao';
 import { ApiTesteComponent } from './testa-api/testa-api';
 import { Sidenav } from './shared/sidenav/sidenav';
+import { NovaPublicacaoComponent } from './nova-publicacao/nova-publicacao';
 
 export const routes: Routes = [
 
-    {path: '',redirectTo: 'landingPage', pathMatch :'full'},
+
     {path:'landingPage', component:LandingPageComponent},
     {
-  path: 'app', redirectTo: 'app/dashboard',
-  component: Sidenav, // O componente da Sidenav serve como a "casca" estrutural
+  path: 'app',
+  component: Sidenav,
   children: [
+    {path: '',redirectTo: 'dashboard', pathMatch :'full'},
     { path: 'dashboard', component: DashboardComponent },
     { path: 'publicacoes', component: PublicacoesComponent },
+    { path: 'nova-publicacao', component: NovaPublicacaoComponent}
     // ... suas outras rotas filhas
   ]
 },

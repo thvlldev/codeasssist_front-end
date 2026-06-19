@@ -4,6 +4,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
+import { Footer } from '../footer/footer';
 
 @Component({
   selector: 'app-sidenav',
@@ -15,6 +16,7 @@ import { MatDividerModule } from '@angular/material/divider';
     MatListModule,
     MatIconModule,
     MatDividerModule,
+    Footer
   ],
   templateUrl: './sidenav.html',
   styleUrl: './sidenav.css',

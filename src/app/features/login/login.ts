@@ -71,8 +71,8 @@ export class LoginComponent {
             backdrops[0].parentNode?.removeChild(backdrops[0]);
           }
 
-          // Navega para dashboard
-          this.router.navigate(['/dashboard']);
+
+          this.router.navigate(['/app/dashboard']);
 
         },
         { once: true }

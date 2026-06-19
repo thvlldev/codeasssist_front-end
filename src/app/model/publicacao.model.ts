@@ -5,15 +5,15 @@ export interface Tecnologia {
 }
 
 export interface Publicacao {
-  publicacaoId: number;
-  publicacaoTitulo: string;
-  publicacaoConteudo: string;
-  publicacaoOrcamentoMin: number;
-  publicacaoOrcamentoMax: number;
-  publicacaoDataCriacao: string;
-  usuarioId: number; 
-  publicacaoStatus: number;
-  tecnologias?: Tecnologia[]; 
+  id: number;
+  titulo: string;
+  conteudo: string;
+  orcamentoMin: number;
+  orcamentoMax: number;
+  dataCriacao: string;
+  usuarioId: number;
+  status: number;
+  tecnologias?: any[];
 }
 
 
@@ -22,6 +22,6 @@ export interface NovaPublicacaoPayload {
   publicacaoConteudo: string;
   publicacaoOrcamentoMin: number;
   publicacaoOrcamentoMax: number;
-  usuarioId: number; 
-  tecnologiasIds: number[]; 
+  usuarioId: number;
+  tecnologiasIds: number[];
 }

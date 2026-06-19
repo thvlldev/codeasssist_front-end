@@ -1,165 +1,81 @@
-<div class="d-flex" id="wrapper">
-  <div>
-    <app-sidenav></app-sidenav>
+<nav class="navbar navbar-expand-lg navbar-dark bg-purple px-4 py-3 shadow-sm d-flex justify-content-between">
+  <div class="d-flex align-items-center">
+    <h2 class="fs-4 m-0 text-white fw-semibold">
+      Suas Publicações
+    </h2>
   </div>
-  <div id="page-content-wrapper" class="w-100">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-purple px-4 py-3 shadow-sm d-flex justify-content-between">
-      <div class="d-flex align-items-center">
-        <h2 class="fs-4 m-0 text-white fw-semibold">
-          {{ viewAtual === 'lista' ? 'Suas Publicações' : 'Nova Solicitação de Mentoria' }}
-        </h2>
+  <button class="btn btn-light fw-bold text-purple rounded-pill px-3" routerLink="/app/nova-publicacao">
+    <i class="bi bi-plus-lg"></i>
+    Nova Publicação
+  </button>
+</nav>
+
+<div class="container-fluid px-4 py-4">
+
+  <div class="row mb-4">
+    <div class="col-md-8 col-lg-6">
+      <div class="input-group shadow-sm rounded-pill overflow-hidden bg-white border">
+        <span class="input-group-text bg-white border-0 ps-3 text-muted">
+          <i class="bi bi-search"></i>
+        </span>
+        <input type="text"
+               class="form-control border-0 ps-2 py-2"
+               placeholder="Buscar por título ou descrição..."
+               [(ngModel)]="termoBusca"
+               (input)="filtrarPublicacoes()" />
       </div>
-      <button class="btn btn-light fw-bold text-purple rounded-pill px-3"
-              (click)="viewAtual = viewAtual === 'lista' ? 'nova' : 'lista'">
-        <i class="bi" [ngClass]="viewAtual === 'lista' ? 'bi-plus-lg' : 'bi-arrow-left'"></i>
-        {{ viewAtual === 'lista' ? ' Nova Publicação' : ' Voltar ao Mural' }}
-      </button>
-    </nav>
-
-    <div class="container-fluid px-4 py-4">
-
-      <div *ngIf="viewAtual === 'lista'">
-        <div class="row mb-4">
-          <div class="col-md-8 col-lg-6">
-            <div class="input-group shadow-sm rounded-pill overflow-hidden bg-white border">
-              <span class="input-group-text bg-white border-0 ps-3 text-muted">
-                <i class="bi bi-search"></i>
-              </span>
-              <input type="text"
-                     class="form-control border-0 ps-2 py-2"
-                     placeholder="Buscar por título ou descrição..."
-                     [(ngModel)]="termoBusca"
-                     (input)="filtrarPublicacoes()" />
-            </div>
-          </div>
-        </div>
-
-        <div *ngIf="carregando" class="text-center my-5 py-5">
-          <div class="spinner-border text-purple" role="status">
-            <span class="visually-hidden">Buscando registros...</span>
-          </div>
-        </div>
-
-        <div *ngIf="!carregando && publicacoesFiltradas.length === 0" class="text-center my-5 py-5 bg-white rounded-3 shadow-sm border">
-          <i class="bi bi-chat-left-dots display-3 text-muted"></i>
-          <p class="text-secondary mt-3 fs-5">Você ainda não criou nenhuma publicação.</p>
-        </div>
-
-        <div *ngIf="!carregando" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-          <div class="col" *ngFor="let pub of publicacoesFiltradas">
-            <div class="card h-100 card-custom border-0 shadow-sm rounded-4">
-              <div class="card-body p-4 d-flex flex-column">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                  <span class="badge rounded-pill"
-                        [ngClass]="pub.publicacaoStatus === 1 ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary'">
-                    {{ pub.publicacaoStatus === 1 ? 'Em aberto' : 'Encerrada' }}
-                  </span>
-                  <small class="text-muted"><i class="bi bi-clock me-1"></i>{{ pub.publicacaoDataCriacao | date:'dd/MM' }}</small>
-                </div>
-
-                <h5 class="card-title text-dark fw-bold mb-2">{{ pub.publicacaoTitulo }}</h5>
-                <p class="card-text text-secondary text-truncate-3 mb-4 flex-grow-1">
-                  {{ pub.publicacaoConteudo }}
-                </p>
-
-                <div class="mb-4 flex-wrap d-flex gap-1" *ngIf="pub.tecnologias && pub.tecnologias.length > 0">
-                  <span *ngFor="let tech of pub.tecnologias" class="badge tag-tech px-2 py-1.5 rounded text-purple">
-                    #{{ tech.tecnologiaNome }}
-                  </span>
-                </div>
-
-                <div class="pt-3 border-top d-flex justify-content-between align-items-center">
-                  <div>
-                    <small class="text-muted d-block uppercase-spaced">Orçamento</small>
-                    <span class="fw-bold text-dark text-nowrap">
-                      {{ pub.publicacaoOrcamentoMin | currency:'BRL' }} - {{ pub.publicacaoOrcamentoMax | currency:'BRL' }}
-                    </span>
-                  </div>
-                  <button class="btn btn-outline-purple btn-sm rounded-pill px-3">Ver Propostas</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div *ngIf="viewAtual === 'nova'" class="row justify-content-center">
-        <div class="col-xl-8 col-lg-10">
-          <div class="card border-0 shadow-sm rounded-4 p-4">
-            <form (ngSubmit)="salvarPublicacao()">
-
-              <div class="mb-4">
-                <label for="titulo" class="form-label fw-semibold text-dark">Título da Solicitação *</label>
-                <input type="text"
-                       id="titulo"
-                       class="form-control form-control-custom"
-                       placeholder="Seja descritivo: ex: Erro de NullPointerException no Spring Boot"
-                       [(ngModel)]="novaPublicacao.publicacaoTitulo"
-                       name="titulo"
-                       required />
-              </div>
-
-              <div class="mb-4">
-                <label for="conteudo" class="form-label fw-semibold text-dark">O que você precisa ajuda para resolver? *</label>
-                <textarea id="conteudo"
-                          class="form-control form-control-custom"
-                          rows="6"
-                          placeholder="Explique detalhadamente o problema ou os conceitos que deseja entender com o mentor..."
-                          [(ngModel)]="novaPublicacao.publicacaoConteudo"
-                          name="conteudo"
-                          required></textarea>
-              </div>
-
-              <div class="row g-4 mb-4">
-                <div class="col-md-6">
-                  <label for="orcamentoMin" class="form-label fw-semibold text-dark">Orçamento Mínimo Proposto (R$)</label>
-                  <div class="input-group">
-                    <span class="input-group-text bg-light border-end-0 text-muted">R$</span>
-                    <input type="number" id="orcamentoMin" class="form-control form-control-custom border-start-0" [(ngModel)]="novaPublicacao.publicacaoOrcamentoMin" name="orcamentoMin" min="0" />
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <label for="orcamentoMax" class="form-label fw-semibold text-dark">Orçamento Máximo Proposto (R$)</label>
-                  <div class="input-group">
-                    <span class="input-group-text bg-light border-end-0 text-muted">R$</span>
-                    <input type="number" id="orcamentoMax" class="form-control form-control-custom border-start-0" [(ngModel)]="novaPublicacao.publicacaoOrcamentoMax" name="orcamentoMax" min="0" />
-                  </div>
-                </div>
-              </div>
-
-              <div class="mb-5">
-                <label class="form-label fw-semibold text-dark d-block">
-                  Tecnologias Envolvidas * <small class="text-muted fw-normal">(Selecione até 5)</small>
-                </label>
-                <div class="d-flex flex-wrap gap-2 mt-2">
-                  <button type="button"
-                          *ngFor="let tech of tecnologiasDisponiveis"
-                          class="btn btn-tag transition-all"
-                          [ngClass]="novaPublicacao.tecnologiasIds.includes(tech.tecnologiaId) ? 'btn-tag-active' : 'btn-tag-inactive'"
-                          (click)="toggleTecnologia(tech.tecnologiaId)">
-                    {{ tech.tecnologiaNome }}
-                  </button>
-                </div>
-              </div>
-
-              <div class="d-flex justify-content-end gap-3 pt-3 border-top">
-                <button type="button" class="btn btn-light rounded-pill px-4" (click)="viewAtual = 'lista'">
-                  Cancelar
-                </button>
-                <button type="submit" class="btn btn-purple rounded-pill px-5 shadow-sm">
-                  Publicar Solicitação
-                </button>
-              </div>
-
-            </form>
-          </div>
-        </div>
-      </div>
-
     </div>
   </div>
+
+  <div *ngIf="carregando" class="text-center my-5 py-5">
+    <div class="spinner-border text-purple" role="status">
+      <span class="visually-hidden">Buscando registros...</span>
+    </div>
+  </div>
+
+  <div *ngIf="!carregando && publicacoesFiltradas.length === 0" class="text-center my-5 py-5 bg-white rounded-3 shadow-sm border">
+    <i class="bi bi-chat-left-dots display-3 text-muted"></i>
+    <p class="text-secondary mt-3 fs-5">Você ainda não criou nenhuma publicação.</p>
+  </div>
+
+  <div *ngIf="!carregando" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    <div class="col" *ngFor="let pub of publicacoesFiltradas">
+      <div class="card h-100 card-custom border-0 shadow-sm rounded-4">
+        <div class="card-body p-4 d-flex flex-column">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <span class="badge rounded-pill"
+                  [ngClass]="pub.status === 1 ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary'">
+              {{ pub.status === 1 ? 'Em aberto' : 'Encerrada' }}
+            </span>
+            <small class="text-muted"><i class="bi bi-clock me-1"></i>{{ pub.dataCriacao | date:'dd/MM' }}</small>
+          </div>
+
+          <h5 class="card-title text-dark fw-bold mb-2">{{ pub.titulo }}</h5>
+
+          <p class="card-text text-secondary text-truncate-3 mb-4 flex-grow-1">
+            {{ pub.conteudo }}
+          </p>
+
+          <div class="mb-4 flex-wrap d-flex gap-1" *ngIf="pub.tecnologias && pub.tecnologias.length > 0">
+            <span *ngFor="let tech of pub.tecnologias" class="badge tag-tech px-2 py-1.5 rounded text-purple">
+              #{{ tech.tecnologiaNome }}
+            </span>
+          </div>
+
+          <div class="pt-3 border-top d-flex justify-content-between align-items-center">
+            <div>
+              <small class="text-muted d-block uppercase-spaced">Orçamento</small>
+              <span class="fw-bold text-dark text-nowrap">
+                {{ pub.orcamentoMin | currency:'BRL' }} - {{ pub.orcamentoMax | currency:'BRL' }}
+              </span>
+            </div>
+            <button class="btn btn-outline-purple btn-sm rounded-pill px-3">Ver Propostas</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
-<div>
-  <app-footer></app-footer>
-</div>
+

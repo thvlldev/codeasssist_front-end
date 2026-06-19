@@ -1,0 +1,86 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-purple px-4 py-3 shadow-sm d-flex justify-content-between">
+  <div class="d-flex align-items-center">
+
+  </div>
+  <button class="btn btn-light fw-bold text-purple rounded-pill px-3" routerLink="/app/publicacoes">
+    <i class="bi bi-arrow-left"></i>
+    Voltar ao Mural
+  </button>
+</nav>
+
+<div class="container-fluid px-4 py-4">
+  <div class="row justify-content-center">
+    <div class="col-xl-8 col-lg-10">
+      <div class="card border-0 shadow-sm rounded-4 p-4">
+        <form (ngSubmit)="salvarPublicacao()">
+
+          <div class="mb-4">
+            <label for="titulo" class="form-label fw-semibold text-dark">Título da Solicitação *</label>
+            <input type="text"
+                   id="titulo"
+                   class="form-control form-control-custom"
+                   placeholder="Seja descritivo: ex: Erro de NullPointerException no Spring Boot"
+                   [(ngModel)]="novaPublicacao.publicacaoTitulo"
+                   name="titulo"
+                   required />
+          </div>
+
+          <div class="mb-4">
+            <label for="conteudo" class="form-label fw-semibold text-dark">O que você precisa ajuda para resolver? *</label>
+            <textarea id="conteudo"
+                      class="form-control form-control-custom"
+                      rows="6"
+                      placeholder="Explique detalhadamente o problema ou os conceitos que deseja entender com o mentor..."
+                      [(ngModel)]="novaPublicacao.publicacaoConteudo"
+                      name="conteudo"
+                      required></textarea>
+          </div>
+
+          <div class="row g-4 mb-4">
+            <div class="col-md-6">
+              <label for="orcamentoMin" class="form-label fw-semibold text-dark">Orçamento Mínimo Proposto (R$)</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light border-end-0 text-muted">R$</span>
+                <input type="number" id="orcamentoMin" class="form-control form-control-custom border-start-0" [(ngModel)]="novaPublicacao.publicacaoOrcamentoMin" name="orcamentoMin" min="0" />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label for="orcamentoMax" class="form-label fw-semibold text-dark">Orçamento Máximo Proposto (R$)</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light border-end-0 text-muted">R$</span>
+                <input type="number" id="orcamentoMax" class="form-control form-control-custom border-start-0" [(ngModel)]="novaPublicacao.publicacaoOrcamentoMax" name="orcamentoMax" min="0" />
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-5">
+            <label class="form-label fw-semibold text-dark d-block">
+              Tecnologias Envolvidas * <small class="text-muted fw-normal">(Selecione até 5)</small>
+            </label>
+            <div class="d-flex flex-wrap gap-2 mt-2">
+              <button type="button"
+                      *ngFor="let tech of tecnologiasDisponiveis"
+                      class="btn btn-tag transition-all"
+                      [ngClass]="novaPublicacao.tecnologiasIds.includes(tech.tecnologiaId) ? 'btn-tag-active' : 'btn-tag-inactive'"
+                      (click)="toggleTecnologia(tech.tecnologiaId)">
+                {{ tech.tecnologiaNome }}
+              </button>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-end gap-3 pt-3 border-top">
+            <button type="button" class="btn btn-light rounded-pill px-4" routerLink="/app/publicacoes">
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-purple rounded-pill px-5 shadow-sm">
+              Publicar Solicitação
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+

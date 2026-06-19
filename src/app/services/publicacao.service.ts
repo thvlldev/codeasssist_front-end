@@ -7,7 +7,7 @@ import { Publicacao, NovaPublicacaoPayload, Tecnologia } from '../model/publicac
   providedIn: 'root'
 })
 export class PublicacaoService {
-  // URLs base da API do projeto no Senac
+
   private readonly API_PUBLICACOES = 'http://academico3.rj.senac.br/20261prjint3manha-mentoria/api/publicacoes';
   private readonly API_TECNOLOGIAS = 'http://academico3.rj.senac.br/20261prjint3manha-mentoria/api/tecnologias';
 
