@@ -1,6 +1,8 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-purple px-4 py-3 shadow-sm d-flex justify-content-between">
   <div class="d-flex align-items-center">
-
+    <h2 class="fs-4 m-0 text-white fw-semibold">
+      Nova Solicitação de Mentoria
+    </h2>
   </div>
   <button class="btn btn-light fw-bold text-purple rounded-pill px-3" routerLink="/app/publicacoes">
     <i class="bi bi-arrow-left"></i>
@@ -20,7 +22,7 @@
                    id="titulo"
                    class="form-control form-control-custom"
                    placeholder="Seja descritivo: ex: Erro de NullPointerException no Spring Boot"
-                   [(ngModel)]="novaPublicacao.publicacaoTitulo"
+                   [(ngModel)]="novaPublicacao.titulo"
                    name="titulo"
                    required />
           </div>
@@ -31,7 +33,7 @@
                       class="form-control form-control-custom"
                       rows="6"
                       placeholder="Explique detalhadamente o problema ou os conceitos que deseja entender com o mentor..."
-                      [(ngModel)]="novaPublicacao.publicacaoConteudo"
+                      [(ngModel)]="novaPublicacao.conteudo"
                       name="conteudo"
                       required></textarea>
           </div>
@@ -41,14 +43,14 @@
               <label for="orcamentoMin" class="form-label fw-semibold text-dark">Orçamento Mínimo Proposto (R$)</label>
               <div class="input-group">
                 <span class="input-group-text bg-light border-end-0 text-muted">R$</span>
-                <input type="number" id="orcamentoMin" class="form-control form-control-custom border-start-0" [(ngModel)]="novaPublicacao.publicacaoOrcamentoMin" name="orcamentoMin" min="0" />
+                <input type="number" id="orcamentoMin" class="form-control form-control-custom border-start-0" [(ngModel)]="novaPublicacao.orcamentoMin" name="orcamentoMin" min="0" />
               </div>
             </div>
             <div class="col-md-6">
               <label for="orcamentoMax" class="form-label fw-semibold text-dark">Orçamento Máximo Proposto (R$)</label>
               <div class="input-group">
                 <span class="input-group-text bg-light border-end-0 text-muted">R$</span>
-                <input type="number" id="orcamentoMax" class="form-control form-control-custom border-start-0" [(ngModel)]="novaPublicacao.publicacaoOrcamentoMax" name="orcamentoMax" min="0" />
+                <input type="number" id="orcamentoMax" class="form-control form-control-custom border-start-0" [(ngModel)]="novaPublicacao.orcamentoMax" name="orcamentoMax" min="0" />
               </div>
             </div>
           </div>
@@ -82,5 +84,3 @@
     </div>
   </div>
 </div>
-
-

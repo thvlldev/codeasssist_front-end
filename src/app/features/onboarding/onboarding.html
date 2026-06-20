@@ -1,14 +1,13 @@
 <div class="container-fluid vh-100">
   <div class="row h-100">
 
-    <!-- Esquerda -->
     <div class="col-md-6 d-flex flex-column justify-content-center px-5">
 
       @if (passo() === 0) {
         <div class="mb-4 fw-bold" style="font-size: 18px; color: #0D7377; letter-spacing: -0.5px;">
           Code<span class="text-dark">Assist</span>
         </div>
-        <h2 class="fw-bold mb-3" style="font-size: 28px;">Olá, seja bem-vindo! 👋😁</h2>
+        <h2 class="fw-bold mb-3" style="font-size: 28px;">Olá, seja bem-vindo!</h2>
         <p class="text-secondary mb-4" style="font-size: 15px; line-height: 1.6;">
           Você está quase pronto. Para encontrar os melhores mentores para você,
           nos conte um pouco sobre você. Isso vai levar apenas um minuto.
@@ -29,15 +28,13 @@
         <p class="fw-semibold small mb-2" style="color: #0D7377;">Pergunta 1 de 3</p>
         <h2 class="fw-bold mb-4" style="font-size: 24px;">Como você descreveria melhor o seu perfil?</h2>
         <div class="d-flex flex-column gap-2">
-          <button class="ob-option" (click)="respostas.funcao = 'desenvolvedor'; passo.set(2)">Desenvolvedor ou engenheiro em tempo integral</button>
-          <button class="ob-option" (click)="respostas.funcao = 'freelancer'; passo.set(2)">Desenvolvedor freelancer</button>
-          <button class="ob-option" (click)="respostas.funcao = 'designer'; passo.set(2)">Designer</button>
-          <button class="ob-option" (click)="respostas.funcao = 'estudante'; passo.set(2)">Estudante</button>
-          <button class="ob-option" (click)="respostas.funcao = 'outro'; passo.set(2)">Outro</button>
+          <button class="ob-option" (click)="selecionarPerfil(1)">Iniciante / Estudante</button>
+          <button class="ob-option" (click)="selecionarPerfil(2)">Intermediário / Freelancer</button>
+          <button class="ob-option" (click)="selecionarPerfil(3)">Avançado / Desenvolvedor Full Time</button>
         </div>
       }
 
-@if (passo() === 2) {
+      @if (passo() === 2) {
         <div class="ob-progress d-flex gap-2 mb-4">
           <div class="ob-dot active"></div>
           <div class="ob-dot active"></div>
@@ -85,7 +82,6 @@
 
     </div>
 
-    <!-- Direita -->
     <div class="col-md-6 d-none d-md-flex align-items-center justify-content-center" style="background: #E6F2F3;">
       <img [src]="'assets/onboarding/passo-' + passo() + '.png'" alt="" style="max-width: 80%;">
     </div>

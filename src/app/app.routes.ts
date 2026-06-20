@@ -1,5 +1,3 @@
-import { Footer } from './shared/footer/footer';
-import { Component } from '@angular/core';
 import { Routes } from '@angular/router';
 import { LandingPageComponent } from './features/landing-page/landing-page';
 import { DashboardComponent } from './features/dashboard/dashboard';
@@ -7,31 +5,32 @@ import { OnboardingComponent } from './features/onboarding/onboarding';
 import { PublicacoesComponent } from './features/publicacao/publicacao';
 import { ApiTesteComponent } from './testa-api/testa-api';
 import { Sidenav } from './shared/sidenav/sidenav';
-import { NovaPublicacaoComponent } from './nova-publicacao/nova-publicacao';
+import { NovaPublicacaoComponent } from './features/nova-publicacao/nova-publicacao';
 
 export const routes: Routes = [
+  // Rota inicial pública
+  { path: 'landingPage', component: LandingPageComponent },
 
+  // Telas internas com suporte ao Sidenav
+  {
+    path: 'app',
+    component: Sidenav,
+    children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: 'dashboard', component: DashboardComponent },
+      { path: 'publicacoes', component: PublicacoesComponent },
+      { path: 'nova-publicacao', component: NovaPublicacaoComponent },
+      {
+        path: 'perfil',
+        loadComponent: () => import('./features/perfil/perfil').then(m => m.PerfilService)
+      } // Movido para dentro de /app para herdar o menu lateral
+    ]
+  },
 
-    {path:'landingPage', component:LandingPageComponent},
-    {
-  path: 'app',
-  component: Sidenav,
-  children: [
-    {path: '',redirectTo: 'dashboard', pathMatch :'full'},
-    { path: 'dashboard', component: DashboardComponent },
-    { path: 'publicacoes', component: PublicacoesComponent },
-    { path: 'nova-publicacao', component: NovaPublicacaoComponent}
-    // ... suas outras rotas filhas
-  ]
-},
-    {path: 'teste', component: ApiTesteComponent},
+  // Rotas isoladas para testes ou fluxos iniciais
+  { path: 'teste', component: ApiTesteComponent },
+  { path: 'onboarding', component: OnboardingComponent },
 
-    {path: 'publicacoes', component: PublicacoesComponent},
-    { path: 'onboarding', component: OnboardingComponent },
-
-    {path: 'perfil',loadComponent: () => import('./features/perfil/perfil').then(m => m.PerfilService)},
-    {path: '**', redirectTo:'landingPage'},
-
-
-
-]
+  // Wildcard (Qualquer rota inválida joga para a Landing Page)
+  { path: '**', redirectTo: 'landingPage' }
+];
