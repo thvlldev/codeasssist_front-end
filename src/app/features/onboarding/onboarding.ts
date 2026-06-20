@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { RespostaOpcaoService } from '../../services/resposta_opcao.service';
+import { RespostaTextoService } from '../../services/resposta_texto.service';
 
 @Component({
   selector: 'app-onboarding',
@@ -13,26 +15,22 @@ import { AuthService } from '../../services/auth.service';
 })
 export class OnboardingComponent implements OnInit {
   private authService = inject(AuthService);
+  private respostaOpcaoService = inject(RespostaOpcaoService);
+  private respostaTextoService = inject(RespostaTextoService);
   private router = inject(Router);
 
-  passoAtual: number = 1;
+  passoAtual: number = 0;
   carregando: boolean = false;
 
-  // SIMULA UM SIGNAL PARA CASAR COM O HTML: Permite chamadas como passo() e passo.set(X)
   passo = Object.assign(
     () => this.passoAtual,
-    {
-      set: (valor: number) => {
-        this.passoAtual = valor;
-      }
-    }
+    { set: (valor: number) => { this.passoAtual = valor; } }
   );
 
-  // Objeto para capturar as respostas das telas
   respostas = {
-    perfilId: null as number | null, // Passo 1 (Múltipla escolha)
-    uso: '',                         // Passo 2 (Texto livre)
-    objetivo: ''                     // Passo 3 (Texto livre)
+    perfilId: null as number | null,
+    uso: '',
+    objetivo: ''
   };
 
   ngOnInit(): void {
@@ -42,26 +40,11 @@ export class OnboardingComponent implements OnInit {
     }
   }
 
-  avancarPasso(): void {
-    if (this.passoAtual < 3) {
-      this.passoAtual++;
-    } else {
-      this.finalizarOnboarding();
-    }
-  }
-
-  voltarPasso(): void {
-    if (this.passoAtual > 1) {
-      this.passoAtual--;
-    }
-  }
-
   selecionarPerfil(opcaoId: number): void {
     this.respostas.perfilId = opcaoId;
-    this.avancarPasso();
+    this.passo.set(2);
   }
 
-  // Atalho exigido pelo clique (click)="finalizar()" do seu HTML
   finalizar(): void {
     this.finalizarOnboarding();
   }
@@ -69,34 +52,34 @@ export class OnboardingComponent implements OnInit {
   finalizarOnboarding(): void {
     this.carregando = true;
 
-    const idSessao = this.authService.getUsuarioId();
-    const usuarioId: number = idSessao !== null && idSessao !== undefined ? idSessao : 3;
-
-    console.log('Salvando respostas do onboarding para o usuário:', usuarioId);
+    const usuarioId = this.authService.getUsuarioId();
+    if (!usuarioId) {
+      console.error('Nenhum usuário logado.');
+      this.carregando = false;
+      return;
+    }
 
     if (this.respostas.perfilId) {
-      this.authService.salvarRespostaOpcao(usuarioId, this.respostas.perfilId).subscribe({
-        next: () => console.log('Passo 1 (Perfil) salvo com sucesso.'),
+      this.respostaOpcaoService.criar({
+        clienteUsuarioId: usuarioId,
+        opcaoPerguntaId: this.respostas.perfilId,
+        status: 1
+      }).subscribe({
+        next: () => console.log('Passo 1 (Perfil) salvo.'),
         error: (err) => console.error('Erro ao salvar passo 1:', err)
       });
     }
 
-    this.authService.salvarRespostaTexto(usuarioId, 2, this.respostas.uso).subscribe({
+    this.respostaTextoService.criar({
+      clienteUsuarioId: usuarioId,
+      perguntaCadastroId: 2,
+      conteudo: this.respostas.uso,
+      status: 1
+    }).subscribe({
       next: () => {
-        console.log('Passo 2 (Uso) salvo com sucesso.');
-
-        this.authService.salvarRespostaTexto(usuarioId, 3, this.respostas.objetivo).subscribe({
-          next: () => {
-            console.log('Passo 3 (Objetivo) salvo com sucesso. Onboarding concluído!');
-            this.carregando = false;
-            this.router.navigate(['/app/dashboard']);
-          },
-          error: (err) => {
-            console.error('Erro ao salvar passo 3:', err);
-            this.carregando = false;
-            this.router.navigate(['/app/dashboard']);
-          }
-        });
+        console.log('Passo 2 (Uso) salvo.');
+        this.carregando = false;
+        this.router.navigate(['/app/dashboard']);
       },
       error: (err) => {
         console.error('Erro ao salvar passo 2:', err);

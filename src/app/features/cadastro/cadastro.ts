@@ -43,51 +43,45 @@ export class CadastroComponent {
   }
 
   handleSubmit() {
-    // Validação básica se as duas senhas batem antes de enviar ao servidor
     if (this.cadastroData.password !== this.cadastroData.confirmPassword) {
       alert('As senhas inseridas não conferem.');
       return;
     }
 
-    // Dispara o POST real para a API do Senac usando o método que adicionamos acima
-    this.authService.cadastrar(this.cadastroData).subscribe({
+    const payload = {
+      nome: this.cadastroData.nome,
+      email: this.cadastroData.email,
+      senha: this.cadastroData.password
+    };
+
+    this.authService.cadastrar(payload).subscribe({
       next: (resposta) => {
         console.log('Usuário registrado com sucesso no banco:', resposta);
-        alert('Conta criada com sucesso!');
         this.fecharModalENavegar();
       },
       error: (err) => {
         console.error('Erro ao efetuar cadastro:', err);
-
-        // MOCK DE CONTINGÊNCIA CONTRA CORS: Se o backend Java retornar 403, avança simulando sucesso local
-        console.warn('Simulando persistência local devido a restrições de rede.');
-        const fakeUser = { id: 3, nome: this.cadastroData.nome, email: this.cadastroData.email };
-        localStorage.setItem('usuario_sessao', JSON.stringify(fakeUser));
-        this.fecharModalENavegar();
+        alert('Não foi possível criar a conta. Tente novamente.');
       }
     });
   }
 
   private fecharModalENavegar() {
-    // 1. Força a remoção manual de todas as travas visuais do Bootstrap na página
     document.body.classList.remove('modal-open');
     document.body.style.overflow = '';
     document.body.style.paddingRight = '';
 
-    // 2. Remove os fundos escuros escora do DOM
     const backdrops = document.getElementsByClassName('modal-backdrop');
     while (backdrops.length > 0) {
       backdrops[0].parentNode?.removeChild(backdrops[0]);
     }
 
-    // 3. Tenta esconder a instância do modal caso o elemento exista em alguma camada
     const cadastroEl = document.getElementById('cadastroModal') || document.querySelector('.modal');
     if (cadastroEl && typeof bootstrap !== 'undefined') {
       const modal = bootstrap.Modal.getInstance(cadastroEl) || new bootstrap.Modal(cadastroEl);
       modal?.hide();
     }
 
-    // 4. Redireciona imediatamente para o onboarding sem esperar eventos assíncronos
     this.router.navigate(['/onboarding']);
   }
 

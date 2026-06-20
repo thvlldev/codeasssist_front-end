@@ -1,18 +1,8 @@
-export interface DashboardResponse {
-  usuario: DashboardUsuario;
-  metricas: DashboardMetricas;
-  publicacoesRecentes: DashboardPublicacao[];
-}
+import { Publicacao } from './publicacao.model';
+import { Usuario } from './usuario.model';
 
-export interface DashboardUsuario {
-  usuarioId: number;
-  usuarioNome: string;
-  usuarioEmail: string;
-  usuarioTipoUsuario: number;
-  usuarioDataCadastro: string;
-  usuarioStatus: number;
-  clienteStack?: string;
-  usuarioDescricao?: string;
+export interface PublicacaoResumo extends Publicacao {
+  totalRespostas: number;
 }
 
 export interface DashboardMetricas {
@@ -22,10 +12,8 @@ export interface DashboardMetricas {
   valorTotalInvestido: number;
 }
 
-export interface DashboardPublicacao {
-  publicacaoId: number;
-  publicacaoTitulo: string;
-  publicacaoConteudo: string;
-  publicacaoStatus: number; 
-  totalRespostas: number;
+export interface DashboardData {
+  usuario: Usuario;
+  metricas: DashboardMetricas;
+  publicacoesRecentes: PublicacaoResumo[];
 }

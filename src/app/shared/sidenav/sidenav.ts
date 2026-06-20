@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { Footer } from '../footer/footer';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-sidenav',
@@ -23,11 +24,12 @@ import { Footer } from '../footer/footer';
 })
 export class Sidenav {
 
+  private authService = inject(AuthService);
+
   constructor(private router: Router) {}
 
-   sair() {
+  sair() {
+    this.authService.logout();
     this.router.navigate(['/']);
   }
-
-
 }

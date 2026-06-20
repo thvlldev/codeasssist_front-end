@@ -63,9 +63,9 @@
               <button type="button"
                       *ngFor="let tech of tecnologiasDisponiveis"
                       class="btn btn-tag transition-all"
-                      [ngClass]="novaPublicacao.tecnologiasIds.includes(tech.tecnologiaId) ? 'btn-tag-active' : 'btn-tag-inactive'"
-                      (click)="toggleTecnologia(tech.tecnologiaId)">
-                {{ tech.tecnologiaNome }}
+                      [ngClass]="tecnologiasIds.includes(tech.id) ? 'btn-tag-active' : 'btn-tag-inactive'"
+                      (click)="toggleTecnologia(tech.id)">
+                {{ tech.nome }}
               </button>
             </div>
           </div>
