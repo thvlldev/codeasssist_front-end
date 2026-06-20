@@ -1,8 +1,8 @@
-import { Component, inject } from '@angular/core'; // Adicionado inject
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '../../services/auth.service'; // Importe o seu AuthService
+import { AuthService } from '../../services/auth.service';
 
 declare var bootstrap: any;
 
@@ -15,7 +15,8 @@ declare var bootstrap: any;
 })
 export class LoginComponent {
 
-  private authService = inject(AuthService); // Injetando o AuthService
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
   loginData = {
     email: '',
@@ -23,77 +24,137 @@ export class LoginComponent {
     rememberMe: false
   };
 
-  constructor(private router: Router) {}
-
   abrirModalCadastro() {
-    const loginEl = document.getElementById('loginModal');
-    const cadastroEl = document.getElementById('cadastroModal');
+
+    const loginEl =
+      document.getElementById('loginModal');
+
+    const cadastroEl =
+      document.getElementById('cadastroModal');
+
     if (!loginEl || !cadastroEl) return;
 
-    const loginModal = bootstrap.Modal.getInstance(loginEl);
-    loginEl.addEventListener('hidden.bs.modal', () => {
-      const cadastroModal = new bootstrap.Modal(cadastroEl);
-      cadastroModal.show();
-    }, { once: true });
+    const loginModal =
+      bootstrap.Modal.getInstance(loginEl);
+
+    loginEl.addEventListener(
+      'hidden.bs.modal',
+      () => {
+
+        const cadastroModal =
+          new bootstrap.Modal(cadastroEl);
+
+        cadastroModal.show();
+
+      },
+      { once: true }
+    );
 
     loginModal?.hide();
   }
 
- handleSubmit() {
-  console.log('Dados do login enviados:', this.loginData);
+  handleSubmit() {
 
-  // MOCK PROVISÓRIO: Como a API do Senac deu CORS 403, gravamos o usuário direto para destravar o Front-end
-  const usuarioMockado = {
-    id: 1,
-    nome: "Jarbas",
-    email: this.loginData.email
-  };
+    console.log(
+      'Validando usuário localmente...'
+    );
 
-  // Salva na sessão do navegador exatamente o que o nova-publicacao e o dashboard esperam
-  localStorage.setItem('usuario_sessao', JSON.stringify(usuarioMockado));
+    this.authService
+      .buscarUsuarios()
+      .subscribe({
 
-  // Executa o fechamento do modal e redireciona para o dashboard
-  const loginEl = document.getElementById('loginModal');
-  if (loginEl) {
-    const modal = bootstrap.Modal.getInstance(loginEl);
+        next: (usuarios) => {
 
-    loginEl.addEventListener('hidden.bs.modal', () => {
-      document.body.classList.remove('modal-open');
-      const backdrops = document.getElementsByClassName('modal-backdrop');
-      while (backdrops.length > 0) {
-        backdrops[0].parentNode?.removeChild(backdrops[0]);
-      }
-      this.router.navigate(['/app/dashboard']);
-    }, { once: true });
+          const usuario =
+            usuarios.find(u =>
 
-    modal?.hide();
-  } else {
-    this.router.navigate(['/app/dashboard']);
-  }
-}
+              u.email === this.loginData.email &&
+              u.senha === this.loginData.password
+            );
 
-  // Isolamos a lógica visual do bootstrap que você criou em um método auxiliar
-  private fecharModalERedirecionar() {
-    const loginEl = document.getElementById('loginModal');
+          if (!usuario) {
 
-    if (loginEl) {
-      const modal = bootstrap.Modal.getInstance(loginEl);
+            alert(
+              'E-mail ou senha incorretos.'
+            );
 
-      loginEl.addEventListener('hidden.bs.modal', () => {
-        document.body.classList.remove('modal-open');
-        const backdrops = document.getElementsByClassName('modal-backdrop');
-        while (backdrops.length > 0) {
-          backdrops[0].parentNode?.removeChild(backdrops[0]);
+            return;
+          }
+
+          console.log(
+            'Usuário encontrado:',
+            usuario
+          );
+
+          localStorage.setItem(
+            'usuario_sessao',
+            JSON.stringify(usuario)
+          );
+
+          this.fecharModalERedirecionar();
+        },
+
+        error: (err) => {
+
+          console.error(
+            'Erro ao consultar usuários:',
+            err
+          );
+
+          alert(
+            'Não foi possível acessar a lista de usuários.'
+          );
         }
-        this.router.navigate(['/app/dashboard']);
-      }, { once: true });
+      });
+  }
+
+  private fecharModalERedirecionar() {
+
+    document.body.classList.remove(
+      'modal-open'
+    );
+
+    document.body.style.overflow = '';
+    document.body.style.paddingRight = '';
+
+    const backdrops =
+      document.getElementsByClassName(
+        'modal-backdrop'
+      );
+
+    while (backdrops.length > 0) {
+
+      backdrops[0]
+        .parentNode
+        ?.removeChild(backdrops[0]);
+    }
+
+    const loginEl =
+      document.getElementById('loginModal') ||
+      document.querySelector('.modal');
+
+    if (
+      loginEl &&
+      typeof bootstrap !== 'undefined'
+    ) {
+
+      const modal =
+        bootstrap.Modal.getInstance(loginEl) ||
+        new bootstrap.Modal(loginEl);
 
       modal?.hide();
-    } else {
-      this.router.navigate(['/app/dashboard']);
     }
+
+    this.router.navigate([
+      '/app/dashboard'
+    ]);
   }
 
-  handleGoogleLogin() { console.log('Google login'); }
-  handleGithubLogin() { console.log('GitHub login'); }
+  handleGoogleLogin() {
+    console.log('Google login');
+  }
+
+  handleGithubLogin() {
+    console.log('GitHub login');
+  }
 }

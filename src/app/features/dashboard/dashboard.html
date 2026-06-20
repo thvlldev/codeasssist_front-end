@@ -1,15 +1,74 @@
 <div class="container-fluid py-4">
 
-  <div class="mb-4">
-    <h2 class="fw-bold">Meu Dashboard</h2>
-    <p class="text-muted">Gerencie suas solicitações</p>
+  <div class="mb-4" *ngIf="!carregando && dashboard?.usuario">
+    <h2 class="fw-bold">Olá, {{ dashboard.usuario.usuarioNome }}!</h2>
+    <p class="text-muted">Gerencie suas solicitações e métricas na plataforma</p>
   </div>
 
   <div *ngIf="carregando" class="text-center mt-5">
     <div class="spinner-border" style="color: #6f42c1;"></div>
   </div>
 
+  <div *ngIf="!carregando && dashboard" class="row g-4 animate-fade-in">
+
+    <div class="col-xl-4 col-md-6">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <p class="text-secondary small fw-medium mb-1">Minhas Solicitações</p>
+            <h3 class="fw-bold text-dark m-0">{{ dashboard.metricas?.totalPublicacoes || 0 }}</h3>
+          </div>
+          <div class="rounded-3 p-3 bg-light-purple text-purple">
+            <i class="bi bi-file-earmark-text fs-4"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-4 col-md-6">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <p class="text-secondary small fw-medium mb-1">Respostas Recebidas</p>
+            <h3 class="fw-bold text-dark m-0">{{ dashboard.metricas?.totalRespostasRecebidas || 0 }}</h3>
+          </div>
+          <div class="rounded-3 p-3 bg-light-cyan text-cyan">
+            <i class="bi bi-chat-left-dots fs-4"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-4 col-md-6">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <p class="text-secondary small fw-medium mb-1">Total Investido</p>
+            <h3 class="fw-bold text-dark m-0">{{ (dashboard.metricas?.valorTotalInvestido || 0) | currency:'BRL':'symbol':'1.2-2' }}</h3>
+          </div>
+          <div class="rounded-3 p-3 bg-light-success text-success">
+            <i class="bi bi-cash-stack fs-4"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
-<div>
+  <div *ngIf="!carregando && dashboard?.publicacoesRecentes?.length" class="mt-5">
+    <h4 class="fw-bold mb-3">Publicações Recentes</h4>
+    <div class="row g-3">
+      <div class="col-md-6" *ngFor="let pub of dashboard.publicacoesRecentes">
+        <div class="card border-0 shadow-sm rounded-3 p-3 bg-white">
+          <h5 class="fw-bold text-dark mb-1">{{ pub.publicacaoTitulo }}</h5>
+          <p class="text-secondary small mb-2 text-truncate">{{ pub.publicacaoConteudo }}</p>
+          <div class="d-flex justify-content-between align-items-center mt-2">
+            <span class="badge rounded-pill bg-light text-dark border">{{ pub.totalRespostas }} respostas</span>
+            <span class="small text-muted">ID: #{{ pub.publicacaoId }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
