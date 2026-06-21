@@ -22,9 +22,14 @@ export class OnboardingComponent implements OnInit {
   passoAtual: number = 0;
   carregando: boolean = false;
 
+  // SIMULA UM SIGNAL PARA CASAR COM O HTML: Permite chamadas como passo() e passo.set(X)
   passo = Object.assign(
     () => this.passoAtual,
-    { set: (valor: number) => { this.passoAtual = valor; } }
+    {
+      set: (valor: number) => {
+        this.passoAtual = valor;
+      }
+    }
   );
 
   respostas = {
@@ -78,8 +83,24 @@ export class OnboardingComponent implements OnInit {
     }).subscribe({
       next: () => {
         console.log('Passo 2 (Uso) salvo.');
-        this.carregando = false;
-        this.router.navigate(['/app/dashboard']);
+
+        this.respostaTextoService.criar({
+          clienteUsuarioId: usuarioId,
+          perguntaCadastroId: 3,
+          conteudo: this.respostas.objetivo,
+          status: 1
+        }).subscribe({
+          next: () => {
+            console.log('Passo 3 (Objetivo) salvo. Onboarding concluído!');
+            this.carregando = false;
+            this.router.navigate(['/app/dashboard']);
+          },
+          error: (err) => {
+            console.error('Erro ao salvar passo 3:', err);
+            this.carregando = false;
+            this.router.navigate(['/app/dashboard']);
+          }
+        });
       },
       error: (err) => {
         console.error('Erro ao salvar passo 2:', err);

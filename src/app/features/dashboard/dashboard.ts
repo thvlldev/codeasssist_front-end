@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, NgIf, NgForOf, CurrencyPipe } from '@angular/common';
 import { DashboardData } from '../../model/dashboard.model';
 import { DashboardService } from '../../services/dashboard.service';
@@ -15,6 +15,7 @@ export class DashboardComponent implements OnInit {
 
   private dashboardService = inject(DashboardService);
   private authService = inject(AuthService);
+  private cdr = inject(ChangeDetectorRef);
 
   dashboard!: DashboardData;
   carregando: boolean = true;
@@ -37,10 +38,12 @@ export class DashboardComponent implements OnInit {
       next: (dados) => {
         this.dashboard = dados;
         this.carregando = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Erro ao carregar dashboard:', err);
         this.carregando = false;
+        this.cdr.detectChanges();
       }
     });
   }

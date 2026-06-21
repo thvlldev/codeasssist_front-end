@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -22,6 +22,7 @@ export class NovaPublicacaoComponent implements OnInit {
   private tecnologiaService = inject(TecnologiaService);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
 
   tecnologiasDisponiveis: Tecnologia[] = [];
 
@@ -38,8 +39,14 @@ export class NovaPublicacaoComponent implements OnInit {
 
   ngOnInit(): void {
     this.tecnologiaService.listarTodas().subscribe({
-      next: (techs) => this.tecnologiasDisponiveis = techs || [],
-      error: (err) => console.error('Erro ao carregar tecnologias:', err)
+      next: (techs) => {
+        this.tecnologiasDisponiveis = techs || [];
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Erro ao carregar tecnologias:', err);
+        this.cdr.detectChanges();
+      }
     });
   }
 
@@ -50,6 +57,7 @@ export class NovaPublicacaoComponent implements OnInit {
     } else if (this.tecnologiasIds.length < 5) {
       this.tecnologiasIds.push(techId);
     }
+    this.cdr.detectChanges();
   }
 
   salvarPublicacao(): void {

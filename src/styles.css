@@ -2,19 +2,49 @@
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
 :root {
   --verdePrincipal: #0D7377;
+  --verde-hover: #0a5c5f;
+  --verde-claro: #E6F2F3;
   --bs-modal-border-width: 0;
 }
+
+/* Botões e textos com a cor da marca */
 .btn-verde {
+  background-color: var(--verdePrincipal);
+  color: white;
+  border: none;
+}
+
+.btn-verde:hover {
+  background-color: var(--verde-hover);
+  color: white;
+}
+
+.btn-outline-verde {
+  color: var(--verdePrincipal);
+  border: 1px solid var(--verdePrincipal);
+  background-color: transparent;
+}
+
+.btn-outline-verde:hover {
   background-color: var(--verdePrincipal);
   color: white;
 }
 
-.btn-verde:hover {
-  background-color: #0a5c5f;
-  color: white;
+.bg-verde {
+  background-color: var(--verdePrincipal) !important;
 }
+
+.bg-verde-claro {
+  background-color: var(--verde-claro) !important;
+}
+
+.text-verde {
+  color: var(--verdePrincipal) !important;
+}
+
 .fonte-titulo {
   font-family: 'Merriweather Sans', sans-serif;
   font-weight: 700;
@@ -27,11 +57,65 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 }
 
 .input-group:focus-within {
-  border-color: #0D7377 !important;
+  border-color: var(--verdePrincipal) !important;
   box-shadow: 0 0 0 3px rgba(13, 115, 119, 0.12) !important;
   border-radius: 8px;
 }
 
+/* Inputs customizados (usados em nova-publicacao e publicacoes) */
+.form-control-custom {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 10px;
+  padding: 12px 16px;
+  transition: all 0.2s ease-in-out;
+}
+
+.form-control-custom:focus {
+  background-color: #ffffff;
+  border-color: var(--verdePrincipal);
+  box-shadow: 0 0 0 0.25rem rgba(13, 115, 119, 0.15);
+  outline: none;
+}
+
+/* Tags de tecnologia (usadas em nova-publicacao e publicacoes) */
+.btn-tag {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  border: 1px solid #dee2e6;
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-block;
+  white-space: nowrap;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-tag:hover {
+  background-color: #e9ecef;
+  color: #495057;
+}
+
+.btn-tag-active {
+  background-color: var(--verde-claro) !important;
+  color: var(--verdePrincipal) !important;
+  border-color: var(--verdePrincipal) !important;
+}
+
+.btn-tag-inactive {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  border-color: #dee2e6;
+}
+
+.tag-tech {
+  background-color: var(--verde-claro);
+  color: var(--verdePrincipal);
+  font-weight: 500;
+  font-size: 0.8rem;
+}
 
 .modal-content {
   background: transparent !important;

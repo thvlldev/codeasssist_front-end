@@ -1,32 +1,39 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { forkJoin } from 'rxjs';
 
 import { PublicacaoService } from '../../services/publicacao.service';
+import { PublicacaoTecnologiaService } from '../../services/publicacao_tecnologia.service';
+import { TecnologiaService } from '../../services/tecnologia.service';
 import { AuthService } from '../../services/auth.service';
+import { Publicacao } from '../../model/publicacao.model';
+import { Tecnologia } from '../../model/tecnologia.model';
+
+interface PublicacaoComTecnologias extends Publicacao {
+  tecnologias: Tecnologia[];
+}
 
 @Component({
   selector: 'app-publicacoes',
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    FormsModule
-  ],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './publicacao.html',
   styleUrls: ['./publicacao.css']
 })
 export class PublicacoesComponent implements OnInit {
 
   private publicacaoService = inject(PublicacaoService);
+  private publicacaoTecnologiaService = inject(PublicacaoTecnologiaService);
+  private tecnologiaService = inject(TecnologiaService);
   private authService = inject(AuthService);
+  private cdr = inject(ChangeDetectorRef);
 
-  publicacoes: any[] = [];
-  publicacoesFiltradas: any[] = [];
+  publicacoes: PublicacaoComTecnologias[] = [];
+  publicacoesFiltradas: PublicacaoComTecnologias[] = [];
 
   termoBusca: string = '';
-
   carregando: boolean = true;
 
   ngOnInit(): void {
@@ -37,185 +44,66 @@ export class PublicacoesComponent implements OnInit {
 
     this.carregando = true;
 
-    const timer = setTimeout(() => {
+    const usuarioId = this.authService.getUsuarioId();
 
-      if (this.carregando) {
+    if (!usuarioId) {
+      console.error('Nenhum usuário logado encontrado.');
+      this.carregando = false;
+      return;
+    }
 
-        console.warn(
-          'Servidor demorou muito. Ativando fallback.'
-        );
+    forkJoin([
+      this.publicacaoService.listarPorUsuario(usuarioId),
+      this.publicacaoTecnologiaService.listarTodas(),
+      this.tecnologiaService.listarTodas()
+    ]).subscribe({
 
-        this.ativarFallbackLocal();
-      }
+      next: ([minhasPublicacoes, relacoes, tecnologias]) => {
 
-    }, 6000);
+        this.publicacoes = minhasPublicacoes.map(pub => {
 
-    try {
+          const idsRelacionados = relacoes
+            .filter(r => r.publicacaoId === pub.id)
+            .map(r => r.tecnologiaId);
 
-      const usuarioId =
-        this.authService.getUsuarioId();
+          const tecnologiasDaPub = tecnologias.filter(t =>
+            idsRelacionados.includes(t.id)
+          );
 
-      if (!usuarioId) {
-
-        console.error(
-          'Nenhum usuário logado encontrado.'
-        );
-
-        clearTimeout(timer);
-
-        this.carregando = false;
-        return;
-      }
-
-      console.log(
-        'Buscando publicações do usuário:',
-        usuarioId
-      );
-
-      this.publicacaoService
-        .listarPorUsuario(usuarioId)
-        .subscribe({
-
-          next: (dados) => {
-
-            clearTimeout(timer);
-
-            console.log(
-              'Resposta da API:',
-              dados
-            );
-
-            if (
-              dados &&
-              Array.isArray(dados)
-            ) {
-
-              this.publicacoes = dados;
-
-            } else if (
-              dados &&
-              (dados as any).publicacoes
-            ) {
-
-              this.publicacoes =
-                (dados as any).publicacoes;
-
-            } else {
-
-              this.publicacoes = [];
-            }
-
-            this.publicacoesFiltradas =
-              [...this.publicacoes];
-
-            this.carregando = false;
-          },
-
-          error: (err) => {
-
-            clearTimeout(timer);
-
-            console.error(
-              'Erro ao buscar publicações:',
-              err
-            );
-
-            this.ativarFallbackLocal();
-          }
+          return { ...pub, tecnologias: tecnologiasDaPub };
         });
 
-    } catch (e) {
-
-      clearTimeout(timer);
-
-      console.error(
-        'Erro inesperado:',
-        e
-      );
-
-      this.ativarFallbackLocal();
-    }
-  }
-
-  private ativarFallbackLocal(): void {
-
-    this.publicacoes = [
-
-      {
-        titulo: 'Problema com API',
-        conteudo:
-          'Problema com GET no servidor do Senac',
-        orcamentoMin: 30,
-        orcamentoMax: 100,
-        dataCriacao: new Date(),
-        status: 1
+        this.publicacoesFiltradas = [...this.publicacoes];
+        this.carregando = false;
+        this.cdr.detectChanges();
       },
 
-      {
-        titulo: 'Ajuda em Angular',
-        conteudo:
-          'Estou tentando não surtar configurando os injetores e modais',
-        orcamentoMin: 20,
-        orcamentoMax: 50,
-        dataCriacao: new Date(),
-        status: 1
+      error: (err) => {
+        console.error('Erro ao buscar publicações:', err);
+        this.carregando = false;
+        this.cdr.detectChanges();
       }
-    ];
-
-    this.publicacoesFiltradas =
-      [...this.publicacoes];
-
-    this.carregando = false;
+    });
   }
 
   filtrarPublicacoes(): void {
 
-    if (
-      !this.publicacoes ||
-      this.publicacoes.length === 0
-    ) {
-
+    if (!this.publicacoes || this.publicacoes.length === 0) {
       this.publicacoesFiltradas = [];
       return;
     }
 
-    if (
-      !this.termoBusca ||
-      !this.termoBusca.trim()
-    ) {
-
-      this.publicacoesFiltradas =
-        [...this.publicacoes];
-
+    if (!this.termoBusca || !this.termoBusca.trim()) {
+      this.publicacoesFiltradas = [...this.publicacoes];
       return;
     }
 
-    const termo =
-      this.termoBusca
-        .toLowerCase()
-        .trim();
+    const termo = this.termoBusca.toLowerCase().trim();
 
-    this.publicacoesFiltradas =
-      this.publicacoes.filter(pub => {
-
-        const tituloBate =
-          pub?.titulo
-            ? pub.titulo
-                .toLowerCase()
-                .includes(termo)
-            : false;
-
-        const conteudoBate =
-          pub?.conteudo
-            ? pub.conteudo
-                .toLowerCase()
-                .includes(termo)
-            : false;
-
-        return (
-          tituloBate ||
-          conteudoBate
-        );
-      });
+    this.publicacoesFiltradas = this.publicacoes.filter(pub => {
+      const tituloBate = pub.titulo ? pub.titulo.toLowerCase().includes(termo) : false;
+      const conteudoBate = pub.conteudo ? pub.conteudo.toLowerCase().includes(termo) : false;
+      return tituloBate || conteudoBate;
+    });
   }
 }
