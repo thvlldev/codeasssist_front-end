@@ -1,0 +1,100 @@
+<div class="container-fluid py-4" style="background-color: #f8f9fa; min-height: 100vh;">
+
+  <div *ngIf="loading" class="d-flex justify-content-center align-items-center my-5">
+    <div class="spinner-border text-teal" role="status" style="color: #00796b;">
+      <span class="visually-hidden">Carregando...</span>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && erroMsg" class="alert alert-danger mx-3" role="alert">
+    {{ erroMsg }}
+  </div>
+
+  <div class="row g-4" *ngIf="!loading && usuarioLogado">
+
+    <div class="col-12 col-lg-4">
+
+      <div class="card border-0 shadow-sm text-center p-4 mb-4 bg-white rounded-3">
+        <div class="d-flex justify-content-center mb-3">
+          <div class="rounded-circle d-flex align-items-center justify-content-center text-teal fw-bold shadow-sm"
+               style="width: 100px; height: 100px; background-color: #e0f2f1; color: #00796b; font-size: 2rem;">
+            {{ getIniciais(usuarioLogado.nome) }}
+          </div>
+        </div>
+
+        <h4 class="fw-bold mb-1 text-dark">{{ usuarioLogado.nome }}</h4>
+        <p class="text-muted small mb-3">
+          {{ usuarioLogado.tipoUsuario === 1 ? 'Mentor Especialista' : 'Desenvolvedor / Cliente' }}
+        </p>
+
+        <button class="btn btn-outline-secondary btn-sm px-4 rounded-2 mb-4">
+          <i class="bi bi-pencil-square me-1"></i> Editar Perfil
+        </button>
+
+        <div class="row border-top pt-3 text-center" *ngIf="usuarioLogado.tipoUsuario === 1">
+          <div class="col-12">
+            <h5 class="fw-bold mb-0 text-warning">
+              <i class="bi bi-star-fill me-1"></i>{{ dadosMentor?.mediaAvaliacao || '0.0' }}
+            </h5>
+            <span class="text-muted small">Média de Avaliações</span>
+          </div>
+        </div>
+
+        <div class="text-start border-top mt-3 pt-3 text-secondary small">
+          <div class="mb-2">
+            <i class="bi bi-geo-alt me-2 text-muted"></i>Rio de Janeiro, RJ
+          </div>
+          <div class="mb-2">
+            <i class="bi bi-calendar-event me-2 text-muted"></i>Membro desde {{ formatarData(usuarioLogado.dataCadastro) }}
+          </div>
+          <div class="mb-2">
+            <i class="bi bi-chat-left-text me-2 text-muted"></i>Responde em x horas
+          </div>
+          <div class="text-truncate">
+            <i class="bi bi-envelope me-2 text-muted"></i>{{ usuarioLogado.email }}
+          </div>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm p-4 bg-white rounded-3" style="background-color: #f0f7f7 !important;" *ngIf="usuarioLogado.tipoUsuario === 1">
+        <span class="text-secondary small fw-semibold">Taxa por Hora</span>
+        <h2 class="fw-bold my-2" style="color: #00796b;">R$ {{ dadosMentor?.precoHora || '0' }}</h2>
+        <span class="text-muted small">Valor médio cobrado por hora de mentoria</span>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-8">
+
+      <div class="card border-0 shadow-sm p-4 mb-4 bg-white rounded-3">
+        <h5 class="fw-bold mb-3 text-dark">Sobre</h5>
+        <p class="text-secondary mb-0 lh-base">
+          {{ usuarioLogado.tipoUsuario === 1 ? dadosMentor?.descricao : dadosCliente?.descricao || 'Nenhuma descrição informada ainda.' }}
+        </p>
+      </div>
+
+      <div class="card border-0 shadow-sm p-4 mb-4 bg-white rounded-3">
+        <h5 class="fw-bold mb-3 text-dark d-flex align-items-center">
+          <i class="bi bi-code-slash me-2" style="color: #00796b;"></i>
+          {{ usuarioLogado.tipoUsuario === 1 ? 'Tecnologias de Mentoria' : 'Stack Tecnológica' }}
+        </h5>
+
+        <p *ngIf="tecnologiasDoUsuario.length === 0" class="text-muted small mb-3">
+          Nenhuma tecnologia adicionada ao perfil.
+        </p>
+
+        <div *ngIf="tecnologiasDoUsuario.length > 0" class="d-flex flex-wrap gap-2 mb-3">
+          <span *ngFor="let tech of tecnologiasDoUsuario"
+                class="badge fw-medium px-3 py-2 rounded-2"
+                style="background-color: #e8f5e9; color: #1b5e20; font-size: 0.9rem;">
+            {{ tech.nome }}
+          </span>
+        </div>
+
+        <a href="javascript:void(0)" class="text-decoration-none small fw-semibold" style="color: #00796b;">
+          + Adicionar tecnologia
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>

@@ -20,6 +20,10 @@ export const routes: Routes = [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'publicacoes', component: PublicacoesComponent },
       { path: 'nova-publicacao', component: NovaPublicacaoComponent },
+      {
+      path: 'perfil',
+      loadComponent: () => import('./features/perfil/perfil').then(m => m.PerfilComponent)
+    },
 
     ]
   },

@@ -10,6 +10,7 @@ import { TecnologiaService } from '../../services/tecnologia.service';
 import { AuthService } from '../../services/auth.service';
 import { Publicacao } from '../../model/publicacao.model';
 import { Tecnologia } from '../../model/tecnologia.model';
+import { Footer } from '../../shared/footer/footer';
 
 interface PublicacaoComTecnologias extends Publicacao {
   tecnologias: Tecnologia[];
@@ -18,7 +19,7 @@ interface PublicacaoComTecnologias extends Publicacao {
 @Component({
   selector: 'app-publicacoes',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, Footer],
   templateUrl: './publicacao.html',
   styleUrls: ['./publicacao.css']
 })

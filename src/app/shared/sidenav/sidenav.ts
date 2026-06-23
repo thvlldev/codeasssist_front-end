@@ -17,7 +17,6 @@ import { AuthService } from '../../services/auth.service';
     MatListModule,
     MatIconModule,
     MatDividerModule,
-    Footer
   ],
   templateUrl: './sidenav.html',
   styleUrl: './sidenav.css',
