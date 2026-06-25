@@ -3,5 +3,6 @@ export interface Mentor {
   descricao: string;
   precoHora: number;
   mediaAvaliacao: number;
+  onboardingConcluido: number;
   status: number;
 }

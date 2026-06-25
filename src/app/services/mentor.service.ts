@@ -22,4 +22,8 @@ export class MentorService {
   criar(mentor: Partial<Mentor>): Observable<Mentor> {
     return this.http.post<Mentor>(`${this.API_BASE}/mentores`, mentor);
   }
+
+  atualizar(usuarioId: number, mentor: Partial<Mentor>): Observable<Mentor> {
+    return this.http.put<Mentor>(`${this.API_BASE}/mentores/${usuarioId}`, mentor);
+  }
 }

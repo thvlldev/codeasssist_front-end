@@ -20,6 +20,28 @@
         </p>
       </div>
 
+      <!-- Seletor de Papel -->
+      <div class="mb-3">
+        <label class="form-label small fw-medium text-secondary">Entrar como</label>
+        <div class="btn-group w-100" role="group">
+          <input type="radio" class="btn-check" name="papel" id="papelCliente" autocomplete="off"
+                 [value]="TipoUsuario.Cliente" [(ngModel)]="loginData.papel">
+          <label class="btn btn-outline-secondary" for="papelCliente" [class.papel-ativo]="loginData.papel === TipoUsuario.Cliente">
+            <i class="bi bi-mortarboard"></i> Cliente
+          </label>
+
+          <input type="radio" class="btn-check" name="papel" id="papelMentor" autocomplete="off"
+                 [value]="TipoUsuario.Mentor" [(ngModel)]="loginData.papel">
+          <label class="btn btn-outline-secondary" for="papelMentor" [class.papel-ativo]="loginData.papel === TipoUsuario.Mentor">
+            <i class="bi bi-person-workspace"></i> Mentor
+          </label>
+        </div>
+      </div>
+
+      @if (erroMsg) {
+        <div class="alert alert-danger small py-2" role="alert">{{ erroMsg }}</div>
+      }
+
       <!-- Social Login -->
       <div class="d-grid gap-2 mb-3">
 
@@ -160,11 +182,11 @@
 
         <button
           type="submit"
-          [disabled]="!loginForm.valid"
+          [disabled]="!loginForm.valid || enviando"
           class="btn w-100 py-2 fw-bold text-white rounded-3"
           style="background: #0D7377; border: none; font-size: 15px; letter-spacing: 0.1px;"
         >
-          Entrar
+          {{ enviando ? 'Entrando...' : 'Entrar' }}
         </button>
 
       </form>

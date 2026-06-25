@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
+import { TipoUsuario } from '../../shared/enums/TipoUsuario';
 
 declare var bootstrap: any;
 
@@ -18,11 +19,17 @@ export class LoginComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
 
+  readonly TipoUsuario = TipoUsuario;
+
   loginData = {
     email: '',
     password: '',
-    rememberMe: false
+    rememberMe: false,
+    papel: TipoUsuario.Cliente as TipoUsuario
   };
+
+  enviando = false;
+  erroMsg = '';
 
   abrirModalCadastro() {
     const loginEl = document.getElementById('loginModal');
@@ -39,19 +46,24 @@ export class LoginComponent {
   }
 
   handleSubmit() {
-    this.authService.login(this.loginData.email, this.loginData.password).subscribe({
-      next: (usuario) => {
-        console.log('Login realizado:', usuario);
-        this.fecharModalERedirecionar();
+    this.erroMsg = '';
+    this.enviando = true;
+
+    this.authService.login(this.loginData.email, this.loginData.password, this.loginData.papel).subscribe({
+      next: (resultado) => {
+        console.log('Login realizado:', resultado);
+        this.enviando = false;
+        this.fecharModalERedirecionar(resultado.precisaOnboarding);
       },
       error: (err) => {
         console.error('Erro no login:', err);
-        alert('E-mail ou senha incorretos.');
+        this.enviando = false;
+        this.erroMsg = 'E-mail ou senha incorretos.';
       }
     });
   }
 
-  private fecharModalERedirecionar() {
+  private fecharModalERedirecionar(precisaOnboarding: boolean) {
     document.body.classList.remove('modal-open');
     document.body.style.overflow = '';
     document.body.style.paddingRight = '';
@@ -67,7 +79,8 @@ export class LoginComponent {
       modal?.hide();
     }
 
-    this.router.navigate(['/app/dashboard']);
+    // Só vai para o onboarding se o papel escolhido ainda não tiver onboardingConcluido = 1
+    this.router.navigate([precisaOnboarding ? '/onboarding' : '/app/dashboard']);
   }
 
   handleGoogleLogin() { console.log('Google login'); }

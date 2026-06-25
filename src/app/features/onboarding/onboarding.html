@@ -8,16 +8,26 @@
           Code<span class="text-dark">Assist</span>
         </div>
         <h2 class="fw-bold mb-3" style="font-size: 28px;">Olá, seja bem-vindo!</h2>
-        <p class="text-secondary mb-4" style="font-size: 15px; line-height: 1.6;">
-          Você está quase pronto. Para encontrar os melhores mentores para você,
-          nos conte um pouco sobre você. Isso vai levar apenas um minuto.
-        </p>
+        @if (ehMentor) {
+          <p class="text-secondary mb-4" style="font-size: 15px; line-height: 1.6;">
+            Você está quase pronto para começar a mentorar. Para te apresentarmos aos
+            clientes certos, nos conte um pouco sobre seu trabalho. Isso vai levar apenas um minuto.
+          </p>
+        } @else {
+          <p class="text-secondary mb-4" style="font-size: 15px; line-height: 1.6;">
+            Você está quase pronto. Para encontrar os melhores mentores para você,
+            nos conte um pouco sobre você. Isso vai levar apenas um minuto.
+          </p>
+        }
         <button class="btn fw-bold text-white rounded-3 px-4 py-2"
           style="background: #0D7377; border: none; font-size: 15px; width: fit-content;"
           (click)="passo.set(1)">
           Começar →
         </button>
       }
+
+      <!-- ===================== FLUXO CLIENTE ===================== -->
+      @if (!ehMentor) {
 
       @if (passo() === 1) {
         <div class="ob-progress d-flex gap-2 mb-4">
@@ -75,15 +85,118 @@
         ></textarea>
         <button class="btn fw-bold text-white rounded-3 px-4 py-2"
           style="background: #0D7377; border: none; font-size: 15px; width: fit-content;"
+          [disabled]="carregando"
           (click)="finalizar()">
-          Confirmar →
+          {{ carregando ? 'Salvando...' : 'Confirmar →' }}
         </button>
+      }
+
+      }
+
+      <!-- ===================== FLUXO MENTOR ===================== -->
+      @if (ehMentor) {
+
+      @if (passo() === 1) {
+        <div class="ob-progress d-flex gap-2 mb-4">
+          <div class="ob-dot active"></div>
+          <div class="ob-dot"></div>
+          <div class="ob-dot"></div>
+        </div>
+        <p class="fw-semibold small mb-2" style="color: #0D7377;">Passo 1 de 3</p>
+        <h2 class="fw-bold mb-2" style="font-size: 24px;">Conte sobre sua experiência</h2>
+        <p class="text-secondary mb-4" style="font-size: 14px;">Essa descrição aparecerá no seu perfil de mentor para os clientes.</p>
+        <textarea
+          class="form-control rounded-3 mb-4"
+          rows="4"
+          placeholder="Ex: Especialista em Java e Spring Boot com 8 anos de experiência..."
+          [(ngModel)]="mentorDados.descricao"
+          style="border: 1.5px solid #dee2e6; font-size: 14px; resize: none;"
+        ></textarea>
+        <button class="btn fw-bold text-white rounded-3 px-4 py-2"
+          style="background: #0D7377; border: none; font-size: 15px; width: fit-content;"
+          [disabled]="!mentorDados.descricao"
+          (click)="passo.set(2)">
+          Continuar →
+        </button>
+      }
+
+      @if (passo() === 2) {
+        <div class="ob-progress d-flex gap-2 mb-4">
+          <div class="ob-dot active"></div>
+          <div class="ob-dot active"></div>
+          <div class="ob-dot"></div>
+        </div>
+        <p class="fw-semibold small mb-2" style="color: #0D7377;">Passo 2 de 3</p>
+        <h2 class="fw-bold mb-2" style="font-size: 24px;">Quais tecnologias você domina?</h2>
+        <p class="text-secondary mb-4" style="font-size: 14px;">Selecione as tecnologias com as quais você pode mentorar.</p>
+        <div class="d-flex flex-wrap gap-2 mb-4" style="max-height: 220px; overflow-y: auto;">
+          @for (tecnologia of tecnologiasDisponiveis; track tecnologia.id) {
+            <button
+              type="button"
+              class="ob-option"
+              style="flex: 0 0 auto; padding: 8px 14px;"
+              [class.ob-option-selecionada]="tecnologiaSelecionada(tecnologia.id)"
+              (click)="alternarTecnologia(tecnologia.id)">
+              {{ tecnologia.nome }}
+            </button>
+          }
+        </div>
+        <button class="btn fw-bold text-white rounded-3 px-4 py-2"
+          style="background: #0D7377; border: none; font-size: 15px; width: fit-content;"
+          (click)="avancarParaPrecoHora()">
+          Continuar →
+        </button>
+      }
+
+      @if (passo() === 3) {
+        <div class="ob-progress d-flex gap-2 mb-4">
+          <div class="ob-dot active"></div>
+          <div class="ob-dot active"></div>
+          <div class="ob-dot active"></div>
+        </div>
+        <p class="fw-semibold small mb-2" style="color: #0D7377;">Passo 3 de 3</p>
+        <h2 class="fw-bold mb-2" style="font-size: 24px;">Qual o valor da sua hora de mentoria?</h2>
+        <p class="text-secondary mb-4" style="font-size: 14px;">Você poderá alterar esse valor depois no seu perfil.</p>
+        <div class="input-group rounded-3 mb-4" style="border: 1.5px solid #dee2e6; max-width: 220px;">
+          <span class="input-group-text bg-white border-0 text-muted">R$</span>
+          <input
+            type="number"
+            min="0"
+            step="5"
+            class="form-control border-0 ps-0 shadow-none"
+            placeholder="120"
+            [(ngModel)]="mentorDados.precoHora"
+          >
+          <span class="input-group-text bg-white border-0 text-muted">/h</span>
+        </div>
+        <button class="btn fw-bold text-white rounded-3 px-4 py-2"
+          style="background: #0D7377; border: none; font-size: 15px; width: fit-content;"
+          [disabled]="carregando || !mentorDados.precoHora"
+          (click)="finalizarOnboardingMentor()">
+          {{ carregando ? 'Salvando...' : 'Confirmar →' }}
+        </button>
+      }
+
       }
 
     </div>
 
     <div class="col-md-6 d-none d-md-flex align-items-center justify-content-center" style="background: #E6F2F3;">
-      <img [src]="'assets/onboarding/passo-' + passo() + '.png'" alt="" style="max-width: 80%;">
+      @if (passo() === 0) {
+        <img src="assets/modern desktop computer-rafiki.png" alt="" style="max-width: 80%;">
+      } @else if (!ehMentor && passo() === 1) {
+        <img src="assets/software tester-cuate.png" alt="" style="max-width: 80%;">
+      } @else if (!ehMentor && passo() === 2) {
+        <img src="assets/software tester-amico.png" alt="" style="max-width: 80%;">
+      } @else if (!ehMentor && passo() === 3) {
+        <img src="assets/software tester-pana.png" alt="" style="max-width: 80%;">
+      } @else if (ehMentor && passo() === 1) {
+        <img src="assets/Coding workshop-rafiki.png" alt="" style="max-width: 80%;">
+      } @else if (ehMentor && passo() === 2) {
+        <img src="assets/Pair programming-amico.png" alt="" style="max-width: 80%;">
+      } @else if (ehMentor && passo() === 3) {
+        <img src="assets/Development-pana.png" alt="" style="max-width: 80%;">
+      }
     </div>
 
   </div>

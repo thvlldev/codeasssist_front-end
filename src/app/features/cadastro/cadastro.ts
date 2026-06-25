@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
+import { TipoUsuario } from '../../shared/enums/TipoUsuario';
 
 declare var bootstrap: any;
 
@@ -17,6 +18,12 @@ export class CadastroComponent {
 
   private authService = inject(AuthService);
 
+  readonly TipoUsuario = TipoUsuario;
+
+  // Passo 0 = escolha do papel, Passo 1 = formulário de dados
+  passoAtual: number = 0;
+  papelSelecionado: TipoUsuario | null = null;
+
   cadastroData = {
     nome: '',
     email: '',
@@ -26,7 +33,19 @@ export class CadastroComponent {
     termos: false
   };
 
+  enviando = false;
+  erroMsg = '';
+
   constructor(private router: Router) {}
+
+  selecionarPapel(papel: TipoUsuario) {
+    this.papelSelecionado = papel;
+    this.passoAtual = 1;
+  }
+
+  voltarParaEscolhaPapel() {
+    this.passoAtual = 0;
+  }
 
   abrirModal() {
     const cadastroEl = document.getElementById('cadastroModal');
@@ -43,8 +62,16 @@ export class CadastroComponent {
   }
 
   handleSubmit() {
+    this.erroMsg = '';
+
+    if (this.papelSelecionado === null) {
+      this.erroMsg = 'Selecione se você quer entrar como Cliente ou Mentor.';
+      this.passoAtual = 0;
+      return;
+    }
+
     if (this.cadastroData.password !== this.cadastroData.confirmPassword) {
-      alert('As senhas inseridas não conferem.');
+      this.erroMsg = 'As senhas inseridas não conferem.';
       return;
     }
 
@@ -54,14 +81,18 @@ export class CadastroComponent {
       senha: this.cadastroData.password
     };
 
-    this.authService.cadastrar(payload).subscribe({
-      next: (resposta) => {
-        console.log('Usuário registrado com sucesso no banco:', resposta);
+    this.enviando = true;
+
+    this.authService.cadastrar(payload, this.papelSelecionado).subscribe({
+      next: (resultado) => {
+        console.log('Usuário registrado com sucesso no banco:', resultado);
+        this.enviando = false;
         this.fecharModalENavegar();
       },
       error: (err) => {
         console.error('Erro ao efetuar cadastro:', err);
-        alert('Não foi possível criar a conta. Tente novamente.');
+        this.enviando = false;
+        this.erroMsg = 'Não foi possível criar a conta. Tente novamente.';
       }
     });
   }
@@ -82,6 +113,7 @@ export class CadastroComponent {
       modal?.hide();
     }
 
+    // Cadastro novo => onboarding sempre é necessário para o papel escolhido.
     this.router.navigate(['/onboarding']);
   }
 

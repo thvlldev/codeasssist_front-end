@@ -9,9 +9,76 @@
         <div class="fw-bold mb-3" style="font-size: 18px; color: #0D7377; letter-spacing: -0.5px;">
           Code<span class="text-dark">Assist</span>
         </div>
-        <h1 class="h5 fw-bold text-dark mb-1">Crie sua conta</h1>
-        <p class="text-secondary small mb-0">Junte-se à comunidade CodeAssist</p>
+        @if (passoAtual === 0) {
+          <h1 class="h5 fw-bold text-dark mb-1">Como você quer usar a plataforma?</h1>
+          <p class="text-secondary small mb-0">Escolha o papel da sua conta para continuar</p>
+        } @else {
+          <h1 class="h5 fw-bold text-dark mb-1">Crie sua conta</h1>
+          <p class="text-secondary small mb-0">Junte-se à comunidade CodeAssist</p>
+        }
       </div>
+
+      <!-- PASSO 0: Escolha do papel -->
+      @if (passoAtual === 0) {
+        <div class="d-flex flex-column gap-3">
+
+          <button
+            type="button"
+            (click)="selecionarPapel(TipoUsuario.Cliente)"
+            class="btn text-start d-flex align-items-center gap-3 rounded-3 p-3"
+            style="border: 1.5px solid #dee2e6;">
+            <span class="d-inline-flex align-items-center justify-content-center rounded-circle"
+                  style="width: 42px; height: 42px; background: #E6F2F3; color: #0D7377;">
+              <i class="bi bi-mortarboard fs-5"></i>
+            </span>
+            <span>
+              <span class="d-block fw-bold text-dark" style="font-size: 15px;">Quero ser Cliente</span>
+              <span class="d-block text-secondary" style="font-size: 13px;">Criar publicações e ser ajudado por mentores</span>
+            </span>
+          </button>
+
+          <button
+            type="button"
+            (click)="selecionarPapel(TipoUsuario.Mentor)"
+            class="btn text-start d-flex align-items-center gap-3 rounded-3 p-3"
+            style="border: 1.5px solid #dee2e6;">
+            <span class="d-inline-flex align-items-center justify-content-center rounded-circle"
+                  style="width: 42px; height: 42px; background: #E6F2F3; color: #0D7377;">
+              <i class="bi bi-person-workspace fs-5"></i>
+            </span>
+            <span>
+              <span class="d-block fw-bold text-dark" style="font-size: 15px;">Quero ser Mentor</span>
+              <span class="d-block text-secondary" style="font-size: 13px;">Responder publicações e ser remunerado por isso</span>
+            </span>
+          </button>
+
+        </div>
+
+        <p class="mt-4 text-center small text-secondary mb-0">
+          Já tem uma conta?
+          <a (click)="abrirModal()" class="fw-bold text-decoration-none" style="color: #0D7377; cursor: pointer;">
+            Faça login
+          </a>
+        </p>
+      }
+
+      <!-- PASSO 1: Formulário de dados -->
+      @if (passoAtual === 1) {
+
+      <button type="button" (click)="voltarParaEscolhaPapel()" class="btn btn-link text-secondary p-0 mb-3" style="font-size: 13px; text-decoration: none;">
+        <i class="bi bi-arrow-left"></i> Alterar papel escolhido
+      </button>
+
+      <div class="d-flex align-items-center gap-2 mb-3 px-3 py-2 rounded-3" style="background: #E6F2F3;">
+        <i class="bi" [class.bi-mortarboard]="papelSelecionado === TipoUsuario.Cliente" [class.bi-person-workspace]="papelSelecionado === TipoUsuario.Mentor" style="color: #0D7377;"></i>
+        <span class="small fw-medium" style="color: #0D7377;">
+          Cadastrando como {{ papelSelecionado === TipoUsuario.Mentor ? 'Mentor' : 'Cliente' }}
+        </span>
+      </div>
+
+      @if (erroMsg) {
+        <div class="alert alert-danger small py-2" role="alert">{{ erroMsg }}</div>
+      }
 
       <!-- Social Login -->
       <div class="d-grid gap-2 mb-3">
@@ -134,10 +201,10 @@
 
         <button
           type="submit"
-          [disabled]="!cadastroForm.valid"
+          [disabled]="!cadastroForm.valid || enviando"
           class="btn w-100 py-2 fw-bold text-white rounded-3"
           style="background: #0D7377; border: none; font-size: 15px; letter-spacing: 0.1px;">
-          Criar conta
+          {{ enviando ? 'Criando conta...' : 'Criar conta' }}
         </button>
 
       </form>
@@ -148,6 +215,8 @@
           Faça login
         </a>
       </p>
+
+      }
 
     </div>
   </div>

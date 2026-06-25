@@ -29,6 +29,12 @@
   background: #f0faf9;
 }
 
+.ob-option-selecionada {
+  border-color: #0D7377 !important;
+  color: #ffffff !important;
+  background: #0D7377 !important;
+}
+
 .form-control:focus {
   border-color: #0D7377 !important;
   box-shadow: 0 0 0 3px rgba(13, 115, 119, 0.12) !important;

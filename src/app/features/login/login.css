@@ -40,3 +40,16 @@
 .btn-github:hover {
   background: #333 !important;
 }
+
+/* Seletor de papel (Cliente / Mentor) */
+.btn-check + .btn-outline-secondary {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.btn-check:checked + .btn-outline-secondary,
+.btn-outline-secondary.papel-ativo {
+  background-color: #0D7377 !important;
+  border-color: #0D7377 !important;
+  color: #ffffff !important;
+}

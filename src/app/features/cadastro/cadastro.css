@@ -33,3 +33,14 @@
   outline: none !important;
   box-shadow: none !important;
 }
+
+/* Botões de seleção de papel (Cliente / Mentor) */
+.card .btn[type="button"]:not(.btn-outline-secondary):not(.btn-github):not(.btn-link) {
+  background: #ffffff;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.card .btn[type="button"]:not(.btn-outline-secondary):not(.btn-github):not(.btn-link):hover {
+  border-color: #0D7377 !important;
+  background: #F4FAFA;
+}
