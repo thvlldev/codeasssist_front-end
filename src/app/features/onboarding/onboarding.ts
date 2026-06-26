@@ -36,7 +36,6 @@ export class OnboardingComponent implements OnInit {
   passoAtual: number = 0;
   carregando: boolean = false;
 
-  // SIMULA UM SIGNAL PARA CASAR COM O HTML
   passo = Object.assign(
     () => this.passoAtual,
     {
@@ -46,15 +45,16 @@ export class OnboardingComponent implements OnInit {
     }
   );
 
-  // ---- Estado do onboarding de Cliente (fluxo já existente) ----
+  perguntasMap: { [key: number]: string } = {};
+
+  // Estado do onboarding de Cliente (Perguntas 1, 2 e 3)
   respostas = {
     perfilId: null as number | null,
     uso: '',
-    objetivo: '',
-    objective: ''
+    objetivo: ''
   };
 
-  // ---- Estado do onboarding de Mentor (novo fluxo) ----
+  // Estado do onboarding de Mentor (Perguntas 4, 5 e 6)
   mentorDados = {
     descricao: '',
     precoHora: null as number | null
@@ -69,14 +69,27 @@ export class OnboardingComponent implements OnInit {
     }
 
     this.papelAtivo = this.authService.getPapelAtivo() ?? TipoUsuario.Cliente;
-
-    if (this.papelAtivo === TipoUsuario.Mentor) {
-      this.carregarTecnologias();
-    }
+    this.carregarDadosIniciais();
   }
 
   get ehMentor(): boolean {
     return this.papelAtivo === TipoUsuario.Mentor;
+  }
+
+  private carregarDadosIniciais(): void {
+    this.perguntasMap = {
+      1: "Quais stacks você atua?",
+      2: "Como você descreve sua experiência no mercado de tecnologia?",
+      3: "Qual é o seu principal objetivo na plataforma?",
+      4: "Conte sobre sua experiência",
+      5: "Quais tecnologias você domina?",
+      6: "Qual valor da sua hora de mentoria?"
+    };
+
+    this.tecnologiaService.listarTodas().subscribe({
+      next: (techs) => this.tecnologiasDisponiveis = techs.filter(t => t.status === 1),
+      error: (err) => console.error('Erro ao carregar tecnologias:', err)
+    });
   }
 
   // ===================== FLUXO CLIENTE =====================
@@ -85,10 +98,7 @@ export class OnboardingComponent implements OnInit {
     this.respostas.perfilId = opcaoId;
 
     const usuarioId = this.authService.getUsuarioId();
-    if (!usuarioId) {
-      console.error('Usuário não identificado para criar o perfil.');
-      return;
-    }
+    if (!usuarioId) return;
 
     this.carregando = true;
 
@@ -99,19 +109,27 @@ export class OnboardingComponent implements OnInit {
           this.passo.set(2);
           return;
         }
-        this.clienteService.criar({
+
+        let stackInicial = '';
+        if (opcaoId === 1) stackInicial = 'Iniciante / Estudante';
+        if (opcaoId === 2) stackInicial = 'Intermediário / Freelancer';
+        if (opcaoId === 3) stackInicial = 'Avançado / Full Time';
+
+        // Cast com 'as any' para aceitar string no payload enviado
+        const novoCliente = {
           usuarioId: usuarioId,
-          stack: '',
+          stack: stackInicial,
           descricao: '',
-          onboardingConcluido: 0,
+          onboardingConcluido: "0",
           status: 1
-        }).subscribe({
+        } as any;
+
+        this.clienteService.criar(novoCliente).subscribe({
           next: () => {
             this.carregando = false;
             this.passo.set(2);
           },
-          error: (err) => {
-            console.error('Erro ao criar o cliente no banco:', err);
+          error: () => {
             this.carregando = false;
             this.passo.set(2);
           }
@@ -130,37 +148,53 @@ export class OnboardingComponent implements OnInit {
 
   private finalizarOnboardingCliente(): void {
     const usuarioId = this.authService.getUsuarioId();
-    if (!usuarioId) {
-      console.error('Nenhum usuário logado.');
-      return;
-    }
+    if (!usuarioId) return;
 
     this.carregando = true;
 
-    const requisicoes: any = {
-      passo2Uso: this.respostaTextoService.criar({
+    const requisicoesForm: any = {
+      passo2: this.respostaTextoService.criar({
         clienteUsuarioId: usuarioId,
         perguntaCadastroId: 2,
         conteudo: this.respostas.uso,
         status: 1
       }),
-      passo3Objetivo: this.respostaTextoService.criar({
+      passo3: this.respostaTextoService.criar({
         clienteUsuarioId: usuarioId,
         perguntaCadastroId: 3,
-        conteudo: this.respostas.objetivo || this.respostas.objective,
+        conteudo: this.respostas.objetivo,
         status: 1
       })
     };
 
     if (this.respostas.perfilId) {
-      requisicoes.passo1Perfil = this.respostaOpcaoService.criar({
+      requisicoesForm.passo1 = this.respostaOpcaoService.criar({
         clienteUsuarioId: usuarioId,
         opcaoPerguntaId: this.respostas.perfilId,
         status: 1
       });
     }
 
-    forkJoin(requisicoes).pipe(
+    forkJoin(requisicoesForm).pipe(
+      switchMap(() => this.clienteService.buscarPorUsuarioId(usuarioId)),
+      switchMap((clienteExistente) => {
+        let stackFinal = 'Iniciante / Estudante';
+        if (this.respostas.perfilId === 1) stackFinal = 'Iniciante / Estudante';
+        if (this.respostas.perfilId === 2) stackFinal = 'Intermediário / Freelancer';
+        if (this.respostas.perfilId === 3) stackFinal = 'Avançado / Full Time';
+
+        // Burlando o TS com 'as any' para mandar a string "1" pro banco aceitar
+        const dadosAtualizados = {
+          ...clienteExistente,
+          usuarioId: usuarioId,
+          stack: stackFinal,
+          descricao: this.respostas.uso || 'Sem descrição',
+          status: 1,
+          onboardingConcluido: "1"
+        } as any;
+
+        return this.clienteService.atualizar(usuarioId, dadosAtualizados);
+      }),
       switchMap(() => this.authService.marcarOnboardingConcluido())
     ).subscribe({
       next: () => {
@@ -168,7 +202,7 @@ export class OnboardingComponent implements OnInit {
         this.router.navigate(['/app/dashboard']);
       },
       error: (err) => {
-        console.error('Erro ao salvar as respostas finais do onboarding:', err);
+        console.error('Erro ao forçar a atualização do cliente:', err);
         this.carregando = false;
         this.router.navigate(['/app/dashboard']);
       }
@@ -176,13 +210,6 @@ export class OnboardingComponent implements OnInit {
   }
 
   // ===================== FLUXO MENTOR =====================
-
-  private carregarTecnologias(): void {
-    this.tecnologiaService.listarTodas().subscribe({
-      next: (techs) => this.tecnologiasDisponiveis = techs.filter(t => t.status === 1),
-      error: (err) => console.error('Erro ao carregar tecnologias:', err)
-    });
-  }
 
   alternarTecnologia(tecnologiaId: number): void {
     const indice = this.tecnologiasSelecionadas.indexOf(tecnologiaId);
@@ -203,41 +230,58 @@ export class OnboardingComponent implements OnInit {
 
   finalizarOnboardingMentor(): void {
     const usuarioId = this.authService.getUsuarioId();
-    if (!usuarioId) {
-      console.error('Nenhum usuário logado.');
-      return;
-    }
+    if (!usuarioId) return;
 
     this.carregando = true;
 
-    const vinculosTecnologia$ = this.tecnologiasSelecionadas.length > 0
-      ? forkJoin(this.tecnologiasSelecionadas.map(tecnologiaId =>
-          this.usuarioTecnologiaService.criar({ usuarioId, tecnologiaId, status: 1 })
+    const requisicoesMentor: any = {
+      pergunta4: this.respostaTextoService.criar({
+        clienteUsuarioId: usuarioId,
+        perguntaCadastroId: 4,
+        conteudo: this.mentorDados.descricao,
+        status: 1
+      }),
+      pergunta6: this.respostaTextoService.criar({
+        clienteUsuarioId: usuarioId,
+        perguntaCadastroId: 6,
+        conteudo: String(this.mentorDados.precoHora),
+        status: 1
+      })
+    };
+
+    const vinculosTech$ = this.tecnologiasSelecionadas.length > 0
+      ? forkJoin(this.tecnologiasSelecionadas.map(techId =>
+          this.usuarioTecnologiaService.criar({ usuarioId, tecnologiaId: techId, status: 1 })
         ))
       : of([]);
 
-    this.mentorService.buscarPorUsuarioId(usuarioId).pipe(
-      switchMap(mentorExistente => {
+    forkJoin(requisicoesMentor).pipe(
+      switchMap(() => vinculosTech$),
+      switchMap(() => this.mentorService.buscarPorUsuarioId(usuarioId)),
+      switchMap((mentorExistente) => {
+        // Mesma malandragem aqui no Mentor para empurrar string "1" sem erro de compilação
         const dadosMentor = {
-          usuarioId,
+          ...mentorExistente,
+          usuarioId: usuarioId,
           descricao: this.mentorDados.descricao,
           precoHora: this.mentorDados.precoHora ?? 0,
           mediaAvaliacao: mentorExistente?.mediaAvaliacao ?? 0,
-          onboardingConcluido: 1,
-          status: 1
-        };
+          status: 1,
+          onboardingConcluido: "1"
+        } as any;
+
         return mentorExistente
           ? this.mentorService.atualizar(usuarioId, dadosMentor)
           : this.mentorService.criar(dadosMentor);
       }),
-      switchMap(() => vinculosTecnologia$)
+      switchMap(() => this.authService.marcarOnboardingConcluido())
     ).subscribe({
       next: () => {
         this.carregando = false;
         this.router.navigate(['/app/dashboard']);
       },
       error: (err) => {
-        console.error('Erro ao salvar o onboarding de mentor:', err);
+        console.error('Erro ao salvar onboarding do mentor:', err);
         this.carregando = false;
         this.router.navigate(['/app/dashboard']);
       }
