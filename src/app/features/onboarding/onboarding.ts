@@ -115,7 +115,6 @@ export class OnboardingComponent implements OnInit {
         if (opcaoId === 2) stackInicial = 'Intermediário / Freelancer';
         if (opcaoId === 3) stackInicial = 'Avançado / Full Time';
 
-        // Cast com 'as any' para aceitar string no payload enviado
         const novoCliente = {
           usuarioId: usuarioId,
           stack: stackInicial,
@@ -183,14 +182,18 @@ export class OnboardingComponent implements OnInit {
         if (this.respostas.perfilId === 2) stackFinal = 'Intermediário / Freelancer';
         if (this.respostas.perfilId === 3) stackFinal = 'Avançado / Full Time';
 
-        // Burlando o TS com 'as any' para mandar a string "1" pro banco aceitar
+        // Remove explicitamente a propriedade antiga para evitar conflitos de spread
+        if (clienteExistente && 'onboardingConcluido' in clienteExistente) {
+          delete (clienteExistente as any).onboardingConcluido;
+        }
+
         const dadosAtualizados = {
           ...clienteExistente,
           usuarioId: usuarioId,
           stack: stackFinal,
           descricao: this.respostas.uso || 'Sem descrição',
           status: 1,
-          onboardingConcluido: "1"
+          onboardingConcluido: "1" // Forçado como String estável "1"
         } as any;
 
         return this.clienteService.atualizar(usuarioId, dadosAtualizados);
@@ -259,7 +262,11 @@ export class OnboardingComponent implements OnInit {
       switchMap(() => vinculosTech$),
       switchMap(() => this.mentorService.buscarPorUsuarioId(usuarioId)),
       switchMap((mentorExistente) => {
-        // Mesma malandragem aqui no Mentor para empurrar string "1" sem erro de compilação
+        // Remove explicitamente a propriedade antiga para evitar conflitos de spread
+        if (mentorExistente && 'onboardingConcluido' in mentorExistente) {
+          delete (mentorExistente as any).onboardingConcluido;
+        }
+
         const dadosMentor = {
           ...mentorExistente,
           usuarioId: usuarioId,
@@ -267,7 +274,7 @@ export class OnboardingComponent implements OnInit {
           precoHora: this.mentorDados.precoHora ?? 0,
           mediaAvaliacao: mentorExistente?.mediaAvaliacao ?? 0,
           status: 1,
-          onboardingConcluido: "1"
+          onboardingConcluido: "1" // Forçado como String estável "1"
         } as any;
 
         return mentorExistente

@@ -1,8 +1,10 @@
+
 import { Routes } from '@angular/router';
 import { LandingPageComponent } from './features/landing-page/landing-page';
 import { DashboardComponent } from './features/dashboard/dashboard';
 import { OnboardingComponent } from './features/onboarding/onboarding';
 import { PublicacoesComponent } from './features/publicacao/publicacao';
+import { DetalhePublicacaoComponent } from './features/detalhe-publicacao/detalhe-publicacao'; // Importado aqui!
 import { ApiTesteComponent } from './testa-api/testa-api';
 import { Sidenav } from './shared/sidenav/sidenav';
 import { NovaPublicacaoComponent } from './features/nova-publicacao/nova-publicacao';
@@ -19,12 +21,15 @@ export const routes: Routes = [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: DashboardComponent },
       { path: 'publicacoes', component: PublicacoesComponent },
+
+      // ADICIONADA: Rota dinâmica capturando o ID para abrir os detalhes
+      { path: 'publicacoes/:id', component: DetalhePublicacaoComponent },
+
       { path: 'nova-publicacao', component: NovaPublicacaoComponent },
       {
-      path: 'perfil',
-      loadComponent: () => import('./features/perfil/perfil').then(m => m.PerfilComponent)
-    },
-
+        path: 'perfil',
+        loadComponent: () => import('./features/perfil/perfil').then(m => m.PerfilComponent)
+      },
     ]
   },
 

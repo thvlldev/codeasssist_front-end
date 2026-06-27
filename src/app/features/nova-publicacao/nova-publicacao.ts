@@ -2,6 +2,7 @@ import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { forkJoin, switchMap, of } from 'rxjs';
 import { PublicacaoService } from '../../services/publicacao.service';
 import { PublicacaoTecnologiaService } from '../../services/publicacao_tecnologia.service';
 import { TecnologiaService } from '../../services/tecnologia.service';
@@ -25,6 +26,7 @@ export class NovaPublicacaoComponent implements OnInit {
   private cdr = inject(ChangeDetectorRef);
 
   tecnologiasDisponiveis: Tecnologia[] = [];
+  ehMentor: boolean = false; // Flag para o HTML bloquear a tela
 
   novaPublicacao = {
     titulo: '',
@@ -38,16 +40,24 @@ export class NovaPublicacaoComponent implements OnInit {
   tecnologiasIds: number[] = [];
 
   ngOnInit(): void {
-    this.tecnologiaService.listarTodas().subscribe({
-      next: (techs) => {
-        this.tecnologiasDisponiveis = techs || [];
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('Erro ao carregar tecnologias:', err);
-        this.cdr.detectChanges();
-      }
-    });
+    // Pega o papel ativo diretamente do seu authService usando a diferenciação que já existe
+    const papelAtivo = this.authService.getPapelAtivo();
+
+    // Identifica se é mentor (Seja se o seu retorno for string "Mentor", ou o número 1)
+    this.ehMentor = papelAtivo === 1;
+
+    if (!this.ehMentor) {
+      this.tecnologiaService.listarTodas().subscribe({
+        next: (techs) => {
+          this.tecnologiasDisponiveis = techs || [];
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Erro ao carregar tecnologias:', err);
+          this.cdr.detectChanges();
+        }
+      });
+    }
   }
 
   toggleTecnologia(techId: number): void {
@@ -61,6 +71,8 @@ export class NovaPublicacaoComponent implements OnInit {
   }
 
   salvarPublicacao(): void {
+    if (this.ehMentor) return;
+
     if (!this.novaPublicacao.titulo?.trim() ||
         !this.novaPublicacao.conteudo?.trim() ||
         this.tecnologiasIds.length === 0) {
@@ -68,29 +80,28 @@ export class NovaPublicacaoComponent implements OnInit {
       return;
     }
 
-    this.publicacaoService.criar(this.novaPublicacao).subscribe({
-      next: (publicacaoCriada) => {
-        const vinculos = this.tecnologiasIds.map(techId =>
+    this.publicacaoService.criar(this.novaPublicacao).pipe(
+      switchMap((publicacaoCriada) => {
+        if (this.tecnologiasIds.length === 0) return of([]);
+
+        const requests = this.tecnologiasIds.map(techId =>
           this.publicacaoTecnologiaService.criar({
             publicacaoId: publicacaoCriada.id,
             tecnologiaId: techId,
             status: 1
           })
         );
-
-        Promise.all(vinculos.map(obs => obs.toPromise()))
-          .then(() => {
-            alert('Sua solicitação de mentoria foi publicada com sucesso!');
-            this.router.navigate(['/app/publicacoes']);
-          })
-          .catch(err => {
-            console.error('Publicação criada, mas erro ao vincular tecnologias:', err);
-            this.router.navigate(['/app/publicacoes']);
-          });
+        return forkJoin(requests);
+      })
+    ).subscribe({
+      next: () => {
+        alert('Sua solicitação de mentoria foi publicada com sucesso!');
+        this.router.navigate(['/app/publicacoes']);
       },
       error: (err) => {
         console.error('Erro ao salvar publicação:', err);
         alert('Não foi possível salvar a publicação.');
+        this.router.navigate(['/app/publicacoes']);
       }
     });
   }

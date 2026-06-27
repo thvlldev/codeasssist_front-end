@@ -13,7 +13,23 @@
 <div class="container-fluid px-4 py-4">
   <div class="row justify-content-center">
     <div class="col-xl-8 col-lg-10">
-      <div class="card border-0 shadow-sm rounded-4 p-4">
+
+      <div *ngIf="ehMentor" class="card border-0 shadow-sm rounded-4 p-5 text-center bg-white">
+        <div class="mb-4">
+          <i class="bi bi-exclamation-octagon-fill text-warning" style="font-size: 3.5rem;"></i>
+        </div>
+        <h3 class="fw-bold text-dark mb-2">Funcionalidade Restrita</h3>
+        <p class="text-secondary mx-auto mb-4" style="max-width: 480px;">
+          Mentores não realizam publicações de dúvidas ou problemas no mural. Para solicitar ajuda técnica, faça login utilizando um perfil de <strong>Cliente</strong>.
+        </p>
+        <div class="d-flex justify-content-center gap-3">
+          <button class="btn btn-verde rounded-pill px-4" routerLink="/app/dashboard">
+            Voltar ao início
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="!ehMentor" class="card border-0 shadow-sm rounded-4 p-4">
         <form (ngSubmit)="salvarPublicacao()">
 
           <div class="mb-4">
@@ -81,6 +97,7 @@
 
         </form>
       </div>
+
     </div>
   </div>
 </div>

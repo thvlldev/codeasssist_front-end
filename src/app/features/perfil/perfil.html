@@ -1,12 +1,12 @@
 <div class="container-fluid py-4" style="background-color: #f8f9fa; min-height: 100vh;">
 
-  <div *ngIf="loading" class="d-flex justify-content-center align-items-center my-5">
+  <div class="d-flex justify-content-center align-items-center my-5" *ngIf="loading">
     <div class="spinner-border text-teal" role="status" style="color: #00796b;">
       <span class="visually-hidden">Carregando...</span>
     </div>
   </div>
 
-  <div *ngIf="!loading && erroMsg" class="alert alert-danger mx-3" role="alert">
+  <div class="alert alert-danger mx-3" role="alert" *ngIf="!loading && erroMsg">
     {{ erroMsg }}
   </div>
 
@@ -18,20 +18,20 @@
         <div class="d-flex justify-content-center mb-3">
           <div class="rounded-circle d-flex align-items-center justify-content-center text-teal fw-bold shadow-sm"
                style="width: 100px; height: 100px; background-color: #e0f2f1; color: #00796b; font-size: 2rem;">
-            {{ getIniciais(usuarioLogado.nome) }}
+            {{ getIniciais(usuarioLogado?.nome) }}
           </div>
         </div>
 
-        <h4 class="fw-bold mb-1 text-dark">{{ usuarioLogado.nome }}</h4>
+        <h4 class="fw-bold mb-1 text-dark">{{ usuarioLogado?.nome }}</h4>
         <p class="text-muted small mb-3">
-          {{ usuarioLogado.tipoUsuario === 1 ? 'Mentor Especialista' : 'Desenvolvedor / Cliente' }}
+          {{ usuarioLogado?.tipoUsuario === 1 ? 'Mentor Especialista' : 'Desenvolvedor / Cliente' }}
         </p>
 
         <button class="btn btn-outline-secondary btn-sm px-4 rounded-2 mb-4">
           <i class="bi bi-pencil-square me-1"></i> Editar Perfil
         </button>
 
-        <div class="row border-top pt-3 text-center" *ngIf="usuarioLogado.tipoUsuario === 1">
+        <div class="row border-top pt-3 text-center" *ngIf="usuarioLogado?.tipoUsuario === 1">
           <div class="col-12">
             <h5 class="fw-bold mb-0 text-warning">
               <i class="bi bi-star-fill me-1"></i>{{ dadosMentor?.mediaAvaliacao || '0.0' }}
@@ -45,37 +45,35 @@
             <i class="bi bi-geo-alt me-2 text-muted"></i>Rio de Janeiro, RJ
           </div>
           <div class="mb-2">
-            <i class="bi bi-calendar-event me-2 text-muted"></i>Membro desde {{ formatarData(usuarioLogado.dataCadastro) }}
+            <i class="bi bi-calendar-event me-2 text-muted"></i>Membro desde {{ formatarData(usuarioLogado?.dataCadastro) }}
           </div>
           <div class="mb-2">
             <i class="bi bi-chat-left-text me-2 text-muted"></i>Responde em x horas
           </div>
           <div class="text-truncate">
-            <i class="bi bi-envelope me-2 text-muted"></i>{{ usuarioLogado.email }}
+            <i class="bi bi-envelope me-2 text-muted"></i>{{ usuarioLogado?.email }}
           </div>
         </div>
       </div>
 
-      <div class="card border-0 shadow-sm p-4 bg-white rounded-3" style="background-color: #f0f7f7 !important;" *ngIf="usuarioLogado.tipoUsuario === 1">
+      <div class="card border-0 shadow-sm p-4 bg-white rounded-3" style="background-color: #f0f7f7 !important;" *ngIf="usuarioLogado?.tipoUsuario === 1">
         <span class="text-secondary small fw-semibold">Taxa por Hora</span>
         <h2 class="fw-bold my-2" style="color: #00796b;">R$ {{ dadosMentor?.precoHora || '0' }}</h2>
-        <span class="text-muted small">Valor médio cobrado por hora de mentoria</span>
+        <span class="text-muted small">Valor médio cobrado por hour de mentoria</span>
       </div>
-    </div>
-
-    <div class="col-12 col-lg-8">
+    </div> <div class="col-12 col-lg-8">
 
       <div class="card border-0 shadow-sm p-4 mb-4 bg-white rounded-3">
         <h5 class="fw-bold mb-3 text-dark">Sobre</h5>
         <p class="text-secondary mb-0 lh-base">
-          {{ usuarioLogado.tipoUsuario === 1 ? dadosMentor?.descricao : dadosCliente?.descricao || 'Nenhuma descrição informada ainda.' }}
+          {{ usuarioLogado?.tipoUsuario === 1 ? dadosMentor?.descricao : dadosCliente?.descricao || 'Nenhuma descrição informada ainda.' }}
         </p>
       </div>
 
       <div class="card border-0 shadow-sm p-4 mb-4 bg-white rounded-3">
         <h5 class="fw-bold mb-3 text-dark d-flex align-items-center">
           <i class="bi bi-code-slash me-2" style="color: #00796b;"></i>
-          {{ usuarioLogado.tipoUsuario === 1 ? 'Tecnologias de Mentoria' : 'Stack Tecnológica' }}
+          {{ usuarioLogado?.tipoUsuario === 1 ? 'Tecnologias de Mentoria' : 'Stack Tecnológica' }}
         </h5>
 
         <p *ngIf="tecnologiasDoUsuario.length === 0" class="text-muted small mb-3">
@@ -95,6 +93,39 @@
         </a>
       </div>
 
-    </div>
-  </div>
-</div>
+      <div class="card border-0 shadow-sm p-4 mb-4 bg-white rounded-3" *ngIf="usuarioLogado?.tipoUsuario === 1">
+        <h5 class="fw-bold mb-4 text-dark d-flex align-items-center">
+          <i class="bi bi-chat-square-heart me-2" style="color: #00796b;"></i>
+          Depoimentos e Avaliações
+        </h5>
+
+        <div class="text-center py-4 border rounded-3 bg-light" *ngIf="avaliacoesMentor.length === 0">
+          <i class="bi bi-star text-muted fs-2"></i>
+          <p class="text-secondary small mt-2 mb-0">Você ainda não recebeu nenhuma avaliação de alunos.</p>
+        </div>
+
+        <div class="d-flex flex-column gap-3" *ngIf="avaliacoesMentor.length > 0">
+          <div class="p-3 border rounded-3 bg-light transition-all" *ngFor="let avaliacao of avaliacoesMentor">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <div class="d-flex align-items-center gap-2">
+                <div class="rounded-circle d-flex align-items-center justify-content-center fw-semibold small"
+                     style="width: 32px; height: 32px; background-color: #e0f2f1; color: #00796b;">
+                  {{ getIniciais(avaliacao.nomeCliente) }}
+                </div>
+                <span class="fw-bold text-dark small">{{ avaliacao.nomeCliente }}</span>
+              </div>
+
+              <div class="text-warning small">
+                <i class="bi bi-star-fill me-1" *ngFor="let s of gerarEstrelas(avaliacao.valor)"></i>
+                <span class="text-dark fw-semibold ms-1">{{ avaliacao.valor }}</span>
+              </div>
+            </div>
+
+            <p class="text-secondary small mb-0 fs-6" style="white-space: pre-wrap; font-style: italic;">
+              "{{ avaliacao.comentario }}"
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div> </div> </div>
