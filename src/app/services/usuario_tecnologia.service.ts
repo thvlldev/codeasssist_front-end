@@ -23,10 +23,11 @@ export class UsuarioTecnologiaService {
     return this.http.post<UsuarioTecnologia>(`${this.API_BASE}/usuarios-tecnologias`, relacao);
   }
 
-  atualizar(usuarioId: number, tecnologiaId: number, dados: Partial<UsuarioTecnologia>): Observable<UsuarioTecnologia> {
+  atualizar(usuarioId: number, tecnologiaId: number, status: number): Observable<UsuarioTecnologia> {
+    const body: UsuarioTecnologia = { usuarioId, tecnologiaId, status };
     return this.http.put<UsuarioTecnologia>(
       `${this.API_BASE}/usuarios-tecnologias/${usuarioId}/${tecnologiaId}`,
-      dados
+      body
     );
   }
 }

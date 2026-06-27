@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -8,6 +8,8 @@ import { PublicacaoService } from '../../services/publicacao.service';
 import { RespostaPublicacaoService } from '../../services/resposta_publicacao.service';
 import { PublicacaoTecnologiaService } from '../../services/publicacao_tecnologia.service';
 import { TecnologiaService } from '../../services/tecnologia.service';
+import { AvaliacaoService } from '../../services/avaliacao.service';
+import { MentorService } from '../../services/mentor.service';
 import { AuthService } from '../../services/auth.service';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
@@ -19,13 +21,15 @@ import { Tecnologia } from '../../model/tecnologia.model';
 interface RespostaComMentor extends RespostaPublicacao {
   nomeMentor?: string;
   emailMentor?: string;
+  mentorUsuarioId?: number;
+  jaAvaliou?: boolean;
 }
 
 @Component({
   selector: 'app-detalhe-publicacao',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
-  templateUrl: './detalhe-publicacao.html', // Bate com o nome sem .component
+  templateUrl: './detalhe-publicacao.html',
   styleUrls: ['./detalhe-publicacao.css']
 })
 export class DetalhePublicacaoComponent implements OnInit {
@@ -36,26 +40,35 @@ export class DetalhePublicacaoComponent implements OnInit {
   private respostaPublicacaoService = inject(RespostaPublicacaoService);
   private publicacaoTecnologiaService = inject(PublicacaoTecnologiaService);
   private tecnologiaService = inject(TecnologiaService);
+  private avaliacaoService = inject(AvaliacaoService);
+  private mentorService = inject(MentorService);
   private authService = inject(AuthService);
-  private cdr = inject(ChangeDetectorRef);
   private readonly API_BASE = environment.apiServer;
 
   publicacaoId!: number;
   publicacao!: Publicacao;
   tecnologias: Tecnologia[] = [];
 
-  // Controle de papéis
   ehMentor: boolean = false;
   usuarioLogadoId!: number;
   carregando: boolean = true;
 
-  // Lado do Mentor
+  // Mentor
   novaPropostaConteudo: string = '';
   jaRespondeu: boolean = false;
   propostaEnviadaPorMim?: RespostaPublicacao;
 
-  // Lado do Cliente
+  // Cliente
   propostasRecebidas: RespostaComMentor[] = [];
+
+  // Modal de avaliação
+  modalAvaliacaoAberto = signal(false);
+  propostaSendoAvaliada = signal<RespostaComMentor | null>(null);
+  notaSelecionada = signal(0);
+  notaHover = signal(0);
+  comentarioAvaliacao = signal('');
+  salvandoAvaliacao = signal(false);
+  erroAvaliacao = signal('');
 
   ngOnInit(): void {
     this.usuarioLogadoId = this.authService.getUsuarioId() ?? 0;
@@ -82,7 +95,6 @@ export class DetalhePublicacaoComponent implements OnInit {
       next: ([pub, relacoes, todasTechs, respostas]) => {
         this.publicacao = pub;
 
-        // Mapeia tecnologias da publicação
         const idsRelacionados = relacoes
           .filter(r => r.publicacaoId === pub.id)
           .map(r => r.tecnologiaId);
@@ -90,48 +102,45 @@ export class DetalhePublicacaoComponent implements OnInit {
 
         if (this.ehMentor) {
           this.propostaEnviadaPorMim = respostas.find(r => r.usuarioId === this.usuarioLogadoId);
-          if (this.propostaEnviadaPorMim) {
-            this.jaRespondeu = true;
-          }
+          this.jaRespondeu = !!this.propostaEnviadaPorMim;
           this.carregando = false;
-          this.cdr.detectChanges();
         } else {
           if (respostas.length === 0) {
             this.propostasRecebidas = [];
             this.carregando = false;
-            this.cdr.detectChanges();
             return;
           }
 
-          const buscaMentores$ = respostas.map(resp =>
-            this.http.get<any>(`${this.API_BASE}/usuarios/${resp.usuarioId}`).pipe(
-              map(user => ({
-                ...resp,
-                nomeMentor: user.nome,
-                emailMentor: user.email
-              }))
-            )
-          );
-
-          forkJoin(buscaMentores$).subscribe({
-            next: (respostasCompletas) => {
-              this.propostasRecebidas = respostasCompletas;
+          // Busca dados dos mentores e avaliações existentes do cliente logado
+          forkJoin([
+            forkJoin(respostas.map(resp =>
+              this.http.get<any>(`${this.API_BASE}/usuarios/${resp.usuarioId}`).pipe(
+                map(user => ({ ...resp, nomeMentor: user.nome, emailMentor: user.email, mentorUsuarioId: user.id }))
+              )
+            )),
+            this.avaliacaoService.listarTodas()
+          ]).subscribe({
+            next: ([respostasComMentor, todasAvaliacoes]) => {
+              // Marca quais mentores já foram avaliados pelo cliente logado nesta publicação
+              this.propostasRecebidas = respostasComMentor.map(r => ({
+                ...r,
+                jaAvaliou: todasAvaliacoes.some(
+                  a => a.mentorUsuarioId === r.mentorUsuarioId
+                    && a.clienteUsuarioId === this.usuarioLogadoId
+                    && a.publicacaoId === this.publicacaoId
+                )
+              }));
               this.carregando = false;
-              this.cdr.detectChanges();
             },
-            error: (err) => {
-              console.error('Erro ao buscar dados dos mentores:', err);
+            error: () => {
               this.propostasRecebidas = respostas.map(r => ({ ...r, nomeMentor: 'Mentor Parceiro' }));
               this.carregando = false;
-              this.cdr.detectChanges();
             }
           });
         }
       },
-      error: (err) => {
-        console.error('Erro ao carregar detalhes da publicação:', err);
+      error: () => {
         this.carregando = false;
-        this.cdr.detectChanges();
       }
     });
   }
@@ -142,24 +151,129 @@ export class DetalhePublicacaoComponent implements OnInit {
       return;
     }
 
-    // Monta o objeto estritamente alinhado com o contrato da tabela do banco
     const payloadProposta: any = {
       conteudo: this.novaPropostaConteudo,
-      usuarioId: Number(this.usuarioLogadoId), // Garante que vá como number puro
-      publicacaoId: Number(this.publicacaoId), // Garante que vá como number puro
+      usuarioId: Number(this.usuarioLogadoId),
+      publicacaoId: Number(this.publicacaoId),
       status: 1
     };
 
     this.respostaPublicacaoService.criar(payloadProposta).subscribe({
-      next: (respostaCriada) => {
+      next: () => {
         alert('Sua proposta de mentoria foi enviada com sucesso!');
         this.novaPropostaConteudo = '';
-        this.carregarDadosCompletos(); // Atualiza a tela para mudar o estado para jaRespondeu = true
+        this.carregarDadosCompletos();
       },
-      error: (err) => {
-        console.error('Erro detalhado retornado pelo servidor do Senac:', err);
+      error: () => {
         alert('Não foi possível enviar a proposta.');
       }
     });
+  }
+
+  // ── Modal de Avaliação ────────────────────────────────────────────────
+
+  abrirModalAvaliacao(proposta: RespostaComMentor): void {
+    this.propostaSendoAvaliada.set(proposta);
+    this.notaSelecionada.set(0);
+    this.notaHover.set(0);
+    this.comentarioAvaliacao.set('');
+    this.erroAvaliacao.set('');
+    this.modalAvaliacaoAberto.set(true);
+  }
+
+  fecharModalAvaliacao(): void {
+    this.modalAvaliacaoAberto.set(false);
+  }
+
+  selecionarNota(nota: number): void {
+    this.notaSelecionada.set(nota);
+  }
+
+  hoverNota(nota: number): void {
+    this.notaHover.set(nota);
+  }
+
+  limparHover(): void {
+    this.notaHover.set(0);
+  }
+
+  estrelaAtiva(index: number): boolean {
+    const referencia = this.notaHover() > 0 ? this.notaHover() : this.notaSelecionada();
+    return index <= referencia;
+  }
+
+  salvarAvaliacao(): void {
+    if (this.notaSelecionada() === 0) {
+      this.erroAvaliacao.set('Selecione uma nota de 1 a 5 estrelas.');
+      return;
+    }
+    if (!this.comentarioAvaliacao().trim()) {
+      this.erroAvaliacao.set('Escreva um comentário sobre a mentoria.');
+      return;
+    }
+
+    const proposta = this.propostaSendoAvaliada()!;
+    this.salvandoAvaliacao.set(true);
+    this.erroAvaliacao.set('');
+
+    const novaAvaliacao = {
+      clienteUsuarioId: this.usuarioLogadoId,
+      mentorUsuarioId: proposta.mentorUsuarioId!,
+      valor: this.notaSelecionada(),
+      comentario: this.comentarioAvaliacao(),
+      publicacaoId: this.publicacaoId,
+      status: 1
+    };
+
+    // 1. Cria a avaliação
+    this.avaliacaoService.criar(novaAvaliacao).subscribe({
+      next: () => {
+        // 2. Busca todas as avaliações do mentor para recalcular a média
+        this.avaliacaoService.listarPorMentor(proposta.mentorUsuarioId!).subscribe({
+          next: (avaliacoes) => {
+            const total = avaliacoes.reduce((soma, a) => soma + a.valor, 0);
+            const media = parseFloat((total / avaliacoes.length).toFixed(1));
+
+            // 3. Busca o mentor atual para fazer o PUT com todos os campos
+            this.mentorService.buscarPorUsuarioId(proposta.mentorUsuarioId!).subscribe({
+              next: (mentor) => {
+                if (mentor) {
+                  this.mentorService.atualizar(proposta.mentorUsuarioId!, {
+                    ...mentor,
+                    mediaAvaliacao: media
+                  }).subscribe({
+                    next: () => {
+                      this.salvandoAvaliacao.set(false);
+                      this.modalAvaliacaoAberto.set(false);
+                      this.carregarDadosCompletos(); // Atualiza tela
+                    },
+                    error: () => {
+                      this.salvandoAvaliacao.set(false);
+                      this.erroAvaliacao.set('Avaliação salva, mas erro ao atualizar média do mentor.');
+                    }
+                  });
+                }
+              },
+              error: () => {
+                this.salvandoAvaliacao.set(false);
+                this.modalAvaliacaoAberto.set(false);
+              }
+            });
+          },
+          error: () => {
+            this.salvandoAvaliacao.set(false);
+            this.modalAvaliacaoAberto.set(false);
+          }
+        });
+      },
+      error: () => {
+        this.salvandoAvaliacao.set(false);
+        this.erroAvaliacao.set('Erro ao salvar avaliação. Tente novamente.');
+      }
+    });
+  }
+
+  estrelas(): number[] {
+    return [1, 2, 3, 4, 5];
   }
 }

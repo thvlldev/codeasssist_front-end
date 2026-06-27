@@ -67,7 +67,7 @@ export class PublicacoesComponent implements OnInit {
       next: ([todasPublicacoes, relacoesPubTech, todasTecnologias, techsDoMentor]) => {
 
         // Extrai apenas os IDs das tecnologias que este mentor domina
-        const idsTechsMentor = techsDoMentor.map(t => t.tecnologiaId);
+        const idsTechsMentor = techsDoMentor.filter(t => t.status === 1).map(t => t.tecnologiaId);
 
         // Map relacional para injetar a lista de tags [Tecnologia] dentro de cada publicação
         const publicacoesMapeadas = todasPublicacoes.map(pub => {

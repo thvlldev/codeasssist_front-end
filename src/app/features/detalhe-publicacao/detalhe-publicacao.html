@@ -1,12 +1,9 @@
 <nav class="navbar navbar-dark bg-verde px-4 shadow-sm d-flex justify-content-between" style="height: 88px;">
   <div class="d-flex align-items-center">
-    <h2 class="fs-4 m-0 text-white fw-semibold">
-      Detalhes da Solicitação
-    </h2>
+    <h2 class="fs-4 m-0 text-white fw-semibold">Detalhes da Solicitação</h2>
   </div>
   <button class="btn btn-light fw-bold text-verde rounded-pill px-3" routerLink="/app/publicacoes">
-    <i class="bi bi-arrow-left"></i>
-    Voltar ao Mural
+    <i class="bi bi-arrow-left"></i> Voltar ao Mural
   </button>
 </nav>
 
@@ -14,23 +11,19 @@
   <div class="row justify-content-center">
     <div class="col-xl-8 col-lg-10">
 
+      <!-- Card da publicação -->
       <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
         <div class="d-flex justify-content-between align-items-start mb-3">
-          <span class="badge rounded-pill bg-success-subtle text-success px-3 py-2">
-            Em aberto
-          </span>
+          <span class="badge rounded-pill bg-success-subtle text-success px-3 py-2">Em aberto</span>
           <small class="text-muted"><i class="bi bi-calendar3 me-1"></i>{{ publicacao.dataCriacao | date:'dd/MM/yyyy' }}</small>
         </div>
-
         <h3 class="text-dark fw-bold mb-3">{{ publicacao.titulo }}</h3>
         <p class="text-secondary lh-lg mb-4" style="white-space: pre-wrap;">{{ publicacao.conteudo }}</p>
-
         <div class="mb-4 flex-wrap d-flex gap-1">
           <span *ngFor="let tech of tecnologias" class="badge tag-tech px-2 py-1.5 rounded">
             #{{ tech.nome }}
           </span>
         </div>
-
         <div class="pt-3 border-top">
           <small class="text-muted d-block uppercase-spaced">Orçamento Proposto pelo Cliente</small>
           <span class="fw-bold text-dark fs-5">
@@ -39,17 +32,17 @@
         </div>
       </div>
 
+      <!-- Área do Mentor -->
       <div *ngIf="ehMentor">
-
         <div *ngIf="!jaRespondeu" class="card border-0 shadow-sm rounded-4 p-4 bg-white">
           <h4 class="fw-bold text-dark mb-3">Enviar sua Proposta de Mentoria</h4>
           <p class="text-muted small mb-3">
-            Explique como você pretende ajudar o cliente a resolver esse problema e combine os detalhes.
+            Explique como você pretende ajudar o cliente a resolver esse problema.
           </p>
           <div class="mb-3">
             <textarea class="form-control form-control-custom"
                       rows="5"
-                      placeholder="Ex: Olá! Tenho ampla experiência com essa stack e posso te guiar na resolução desse bug em uma sessão de 1 hora..."
+                      placeholder="Ex: Olá! Tenho ampla experiência com essa stack..."
                       [(ngModel)]="novaPropostaConteudo"></textarea>
           </div>
           <div class="d-flex justify-content-end">
@@ -70,19 +63,24 @@
         </div>
       </div>
 
+      <!-- Área do Cliente -->
       <div *ngIf="!ehMentor">
-        <h4 class="fw-bold text-dark mb-3"><i class="bi bi-person-workspace me-2"></i>Propostas de Mentores Recebidas</h4>
+        <h4 class="fw-bold text-dark mb-3">
+          <i class="bi bi-person-workspace me-2"></i>Propostas de Mentores Recebidas
+        </h4>
 
         <div *ngIf="propostasRecebidas.length === 0" class="text-center p-5 bg-white rounded-4 shadow-sm border">
           <i class="bi bi-inbox text-muted display-4"></i>
-          <p class="text-secondary mt-3 m-0">Nenhuma proposta enviada para esta publicação até o momento. Aguarde o contato dos mentores!</p>
+          <p class="text-secondary mt-3 m-0">Nenhuma proposta enviada até o momento.</p>
         </div>
 
         <div class="d-flex flex-column gap-3" *ngIf="propostasRecebidas.length > 0">
-          <div class="card border-0 shadow-sm rounded-4 p-4 bg-white transition-all" *ngFor="let proposta of propostasRecebidas">
+          <div class="card border-0 shadow-sm rounded-4 p-4 bg-white"
+               *ngFor="let proposta of propostasRecebidas">
             <div class="d-flex justify-content-between align-items-center mb-3">
               <div class="d-flex align-items-center gap-2">
-                <div class="bg-verde-subtle text-verde rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                <div class="bg-verde-subtle text-verde rounded-circle d-flex align-items-center justify-content-center"
+                     style="width: 40px; height: 40px;">
                   <i class="bi bi-person-fill fs-5"></i>
                 </div>
                 <div>
@@ -90,13 +88,30 @@
                   <small class="text-muted">{{ proposta.emailMentor }}</small>
                 </div>
               </div>
-              <span class="badge bg-success rounded-pill px-3 py-1.5 small">Disponível</span>
+              <span class="badge bg-success rounded-pill px-3 small">Disponível</span>
             </div>
+
             <p class="text-secondary bg-light p-3 rounded-3 m-0 border" style="white-space: pre-wrap;">
               {{ proposta.conteudo }}
             </p>
-            <div class="d-flex justify-content-end mt-3">
-              <button class="btn btn-outline-verde btn-sm rounded-pill px-4"><i class="bi bi-chat-dots me-1"></i>Entrar em Contato</button>
+
+            <div class="d-flex justify-content-end gap-2 mt-3">
+              <button class="btn btn-outline-verde btn-sm rounded-pill px-4">
+                <i class="bi bi-chat-dots me-1"></i>Entrar em Contato
+              </button>
+
+              <!-- Botão avaliar -->
+              <button *ngIf="!proposta.jaAvaliou"
+                      class="btn btn-sm rounded-pill px-4 text-white"
+                      style="background-color: #f59e0b;"
+                      (click)="abrirModalAvaliacao(proposta)">
+                <i class="bi bi-star-fill me-1"></i>Avaliar Mentor
+              </button>
+
+              <span *ngIf="proposta.jaAvaliou"
+                    class="badge bg-success-subtle text-success px-3 py-2 rounded-pill align-self-center">
+                <i class="bi bi-check-circle me-1"></i>Avaliado
+              </span>
             </div>
           </div>
         </div>
@@ -109,5 +124,83 @@
 <div *ngIf="carregando" class="text-center my-5 py-5">
   <div class="spinner-border text-verde" role="status">
     <span class="visually-hidden">Carregando detalhes...</span>
+  </div>
+</div>
+
+<!-- ── MODAL DE AVALIAÇÃO ─────────────────────────────────────────────────── -->
+<div *ngIf="modalAvaliacaoAberto()"
+     style="position: fixed; inset: 0; z-index: 1050; display: flex; align-items: center; justify-content: center;">
+
+  <!-- Backdrop -->
+  <div (click)="fecharModalAvaliacao()"
+       style="position: absolute; inset: 0; background: rgba(0,0,0,0.5);"></div>
+
+  <!-- Caixa -->
+  <div style="position: relative; z-index: 1; width: 100%; max-width: 480px;
+              background: #fff; border-radius: 12px;
+              box-shadow: 0 8px 32px rgba(0,0,0,0.18); margin: 16px;">
+
+    <!-- Header -->
+    <div class="d-flex align-items-center justify-content-between px-4 py-3 rounded-top"
+         style="background-color: #f0f7f7; border-bottom: 1px solid #e0f2f1;">
+      <h5 class="mb-0 fw-bold" style="color: #00796b;">
+        <i class="bi bi-star-fill me-2"></i>Avaliar Mentor
+      </h5>
+      <button type="button" class="btn-close" (click)="fecharModalAvaliacao()"></button>
+    </div>
+
+    <!-- Body -->
+    <div class="px-4 py-4">
+      <p class="text-muted small mb-1">Avaliando:</p>
+      <p class="fw-bold text-dark mb-4">{{ propostaSendoAvaliada()?.nomeMentor }}</p>
+
+      <!-- Estrelas -->
+      <p class="text-muted small mb-2">Nota <span class="text-danger">*</span></p>
+      <div class="d-flex gap-2 mb-4">
+        <i *ngFor="let n of estrelas()"
+           class="fs-2"
+           [class.bi-star-fill]="estrelaAtiva(n)"
+           [class.bi-star]="!estrelaAtiva(n)"
+           [style.color]="estrelaAtiva(n) ? '#f59e0b' : '#d1d5db'"
+           style="cursor: pointer;"
+           (click)="selecionarNota(n)"
+           (mouseenter)="hoverNota(n)"
+           (mouseleave)="limparHover()">
+        </i>
+      </div>
+
+      <!-- Comentário -->
+      <p class="text-muted small mb-2">Comentário <span class="text-danger">*</span></p>
+      <textarea class="form-control mb-3"
+                rows="3"
+                placeholder="Conte como foi a experiência com este mentor..."
+                [value]="comentarioAvaliacao()"
+                (input)="comentarioAvaliacao.set($any($event.target).value)">
+      </textarea>
+
+      <div *ngIf="erroAvaliacao()" class="alert alert-danger py-2 small">
+        {{ erroAvaliacao() }}
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="px-4 py-3 d-flex justify-content-end gap-2"
+         style="border-top: 1px solid #e0f2f1;">
+      <button type="button"
+              class="btn btn-sm btn-outline-secondary px-4 rounded-pill"
+              (click)="fecharModalAvaliacao()"
+              [disabled]="salvandoAvaliacao()">
+        Cancelar
+      </button>
+      <button type="button"
+              class="btn btn-sm px-4 rounded-pill fw-semibold text-white"
+              style="background-color: #00796b;"
+              (click)="salvarAvaliacao()"
+              [disabled]="salvandoAvaliacao()">
+        <span *ngIf="salvandoAvaliacao()" class="spinner-border spinner-border-sm me-1"></span>
+        {{ salvandoAvaliacao() ? 'Salvando...' : 'Enviar Avaliação' }}
+      </button>
+    </div>
+
   </div>
 </div>

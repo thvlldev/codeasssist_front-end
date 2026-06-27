@@ -128,8 +128,8 @@ export class DashboardComponent implements OnInit {
             this.usuarioTecnologiaService.criar({ usuarioId, tecnologiaId: techId, status: 1 })
           ),
           ...remover.map(ut =>
-            this.usuarioTecnologiaService.atualizar(usuarioId, ut.tecnologiaId, { ...ut, status: 0 })
-          )
+  this.usuarioTecnologiaService.atualizar(usuarioId, ut.tecnologiaId, 0)
+)
         ];
 
         if (ops.length === 0) {
