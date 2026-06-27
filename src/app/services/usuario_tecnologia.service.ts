@@ -22,4 +22,11 @@ export class UsuarioTecnologiaService {
   criar(relacao: UsuarioTecnologia): Observable<UsuarioTecnologia> {
     return this.http.post<UsuarioTecnologia>(`${this.API_BASE}/usuarios-tecnologias`, relacao);
   }
+
+  atualizar(usuarioId: number, tecnologiaId: number, dados: Partial<UsuarioTecnologia>): Observable<UsuarioTecnologia> {
+    return this.http.put<UsuarioTecnologia>(
+      `${this.API_BASE}/usuarios-tecnologias/${usuarioId}/${tecnologiaId}`,
+      dados
+    );
+  }
 }

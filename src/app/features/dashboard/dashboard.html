@@ -1,30 +1,37 @@
 <nav class="navbar navbar-dark bg-verde px-4 shadow-sm" style="height: 88px;">
   <div class="d-flex align-items-center">
     <h1 class="fs-4 m-0 text-white fw-bold">
-      Seu Dashboard
+      {{ ehMentor ? 'Dashboard do Mentor' : 'Seu Dashboard' }}
     </h1>
+  </div>
+  <div *ngIf="ehMentor">
+    <button class="btn btn-light fw-bold text-verde rounded-pill px-3"
+            routerLink="/app/publicacoes">
+      <i class="bi bi-lightning-charge me-1"></i> Ver Oportunidades
+    </button>
   </div>
 </nav>
 
-<div class="container-fluid py-4">
+<div *ngIf="carregando" class="text-center mt-5">
+  <div class="spinner-border" style="color: #0D7377;"></div>
+</div>
 
-  <div class="mb-4" *ngIf="!carregando && dashboard?.usuario">
-    <h2 class="fw-bold">Olá, {{ dashboard.usuario.nome }}!</h2>
-    <p class="text-muted">Gerencie suas solicitações e métricas na plataforma</p>
+<!-- ==================== DASHBOARD CLIENTE ==================== -->
+<div *ngIf="!carregando && dashboard && !ehMentor" class="container-fluid py-4">
+
+  <div class="mb-4">
+    <h2 class="fw-bold">Olá, {{ dashboardCliente.usuario.nome }}!</h2>
+    <p class="text-muted">Gerencie suas solicitações e encontre tutores</p>
   </div>
 
-  <div *ngIf="carregando" class="text-center mt-5">
-    <div class="spinner-border" style="color: #0D7377;"></div>
-  </div>
-
-  <div *ngIf="!carregando && dashboard" class="row g-4 animate-fade-in">
-
-    <div class="col-xl-4 col-md-6">
+  <!-- Cards de métricas -->
+  <div class="row g-4 mb-5">
+    <div class="col-xl-3 col-md-6">
       <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
         <div class="d-flex align-items-center justify-content-between">
           <div>
-            <p class="text-secondary small fw-medium mb-1">Minhas Solicitações</p>
-            <h3 class="fw-bold text-dark m-0">{{ dashboard.metricas.totalPublicacoes || 0 }}</h3>
+            <p class="text-secondary small fw-medium mb-1">Minhas Publicações</p>
+            <h3 class="fw-bold text-dark m-0">{{ dashboardCliente.metricas.totalPublicacoes }}</h3>
           </div>
           <div class="rounded-3 p-3 bg-verde-claro text-verde">
             <i class="bi bi-file-earmark-text fs-4"></i>
@@ -33,50 +40,279 @@
       </div>
     </div>
 
-    <div class="col-xl-4 col-md-6">
+    <div class="col-xl-3 col-md-6">
       <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
         <div class="d-flex align-items-center justify-content-between">
           <div>
             <p class="text-secondary small fw-medium mb-1">Respostas Recebidas</p>
-            <h3 class="fw-bold text-dark m-0">{{ dashboard.metricas.totalRespostasRecebidas || 0 }}</h3>
+            <h3 class="fw-bold text-dark m-0">{{ dashboardCliente.metricas.totalRespostasRecebidas }}</h3>
           </div>
-          <div class="rounded-3 p-3 bg-light-cyan text-cyan">
+          <div class="rounded-3 p-3" style="background:#e0f7fa; color:#00796b;">
             <i class="bi bi-chat-left-dots fs-4"></i>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="col-xl-4 col-md-6">
+    <div class="col-xl-3 col-md-6">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <p class="text-secondary small fw-medium mb-1">Em Aberto</p>
+            <h3 class="fw-bold text-dark m-0">{{ dashboardCliente.metricas.publicacoesAbertas }}</h3>
+          </div>
+          <div class="rounded-3 p-3" style="background:#fff8e1; color:#f57f17;">
+            <i class="bi bi-hourglass-split fs-4"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
       <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
         <div class="d-flex align-items-center justify-content-between">
           <div>
             <p class="text-secondary small fw-medium mb-1">Total Investido</p>
-            <h3 class="fw-bold text-dark m-0">{{ (dashboard.metricas.valorTotalInvestido || 0) | currency:'BRL':'symbol':'1.2-2' }}</h3>
+            <h3 class="fw-bold text-dark m-0">
+              {{ dashboardCliente.metricas.valorTotalInvestido | currency:'BRL':'symbol':'1.2-2' }}
+            </h3>
           </div>
-          <div class="rounded-3 p-3 bg-light-success text-success">
+          <div class="rounded-3 p-3 bg-light text-success">
             <i class="bi bi-cash-stack fs-4"></i>
           </div>
         </div>
       </div>
     </div>
-
   </div>
 
-  <div *ngIf="!carregando && dashboard?.publicacoesRecentes?.length" class="mt-5">
-    <h4 class="fw-bold mb-3">Publicações Recentes</h4>
-    <div class="row g-3">
-      <div class="col-md-6" *ngFor="let pub of dashboard.publicacoesRecentes">
-        <div class="card border-0 shadow-sm rounded-3 p-3 bg-white">
-          <h5 class="fw-bold text-dark mb-1">{{ pub.titulo }}</h5>
-          <p class="text-secondary small mb-2 text-truncate">{{ pub.conteudo }}</p>
-          <div class="d-flex justify-content-between align-items-center mt-2">
-            <span class="badge rounded-pill bg-light text-dark border">{{ pub.totalRespostas }} respostas</span>
-            <span class="small text-muted">ID: #{{ pub.id }}</span>
+  <div class="row g-4">
+    <!-- Publicações recentes -->
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-bold text-dark m-0">Publicações Recentes</h5>
+          <a routerLink="/app/publicacoes" class="small text-verde text-decoration-none fw-semibold">
+            Ver todas
+          </a>
+        </div>
+
+        <div *ngIf="dashboardCliente.publicacoesRecentes.length === 0" class="text-center py-4">
+          <i class="bi bi-inbox text-muted fs-2"></i>
+          <p class="text-muted small mt-2">Você ainda não criou nenhuma publicação.</p>
+        </div>
+
+        <div class="d-flex flex-column gap-3">
+          <div *ngFor="let pub of dashboardCliente.publicacoesRecentes"
+               class="d-flex justify-content-between align-items-center p-3 rounded-3 border bg-light">
+            <div class="flex-grow-1 me-3" style="min-width: 0;">
+              <h6 class="fw-bold text-dark mb-1 text-truncate">{{ pub.titulo }}</h6>
+              <div class="d-flex align-items-center gap-3">
+                <small class="text-muted">
+                  <i class="bi bi-currency-dollar me-1"></i>
+                  {{ pub.orcamentoMin | currency:'BRL':'symbol':'1.0-0' }} -
+                  {{ pub.orcamentoMax | currency:'BRL':'symbol':'1.0-0' }}
+                </small>
+                <small class="text-muted">
+                  <i class="bi bi-chat-dots me-1"></i>{{ pub.totalRespostas }} respostas
+                </small>
+              </div>
+            </div>
+            <div class="d-flex align-items-center gap-2 flex-shrink-0">
+              <span class="badge rounded-pill"
+                    [ngClass]="{
+                      'bg-success-subtle text-success': pub.status === 1,
+                      'bg-warning-subtle text-warning': pub.status === 2,
+                      'bg-secondary-subtle text-secondary': pub.status === 3
+                    }">
+                {{ getLabelStatusPublicacao(pub.status) }}
+              </span>
+              <a [routerLink]="['/app/publicacoes', pub.id]"
+                 class="btn btn-outline-verde btn-sm rounded-pill px-3">
+                Ver
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Painel lateral cliente -->
+    <div class="col-lg-4">
+      <!-- Ações rápidas -->
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+        <h5 class="fw-bold text-dark mb-3">Ações Rápidas</h5>
+        <div class="d-flex flex-column gap-2">
+          <a routerLink="/app/nova-publicacao"
+             class="btn btn-verde rounded-3 d-flex align-items-center gap-2 px-3 py-2">
+            <i class="bi bi-plus-circle"></i>
+            <div class="text-start">
+              <div class="fw-semibold small">Nova Publicação</div>
+              <div style="font-size: 0.75rem; opacity: 0.85;">Solicite ajuda agora</div>
+            </div>
+          </a>
+          <a routerLink="/app/publicacoes"
+             class="btn btn-outline-verde rounded-3 d-flex align-items-center gap-2 px-3 py-2">
+            <i class="bi bi-file-earmark-text"></i>
+            <div class="text-start">
+              <div class="fw-semibold small">Ver Publicações</div>
+              <div class="text-muted" style="font-size: 0.75rem;">Suas solicitações</div>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <!-- Perfil resumido -->
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+        <h5 class="fw-bold text-dark mb-3">Meu Perfil</h5>
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white"
+               style="width:48px; height:48px; background:#0D7377; font-size:1.1rem; flex-shrink:0;">
+            {{ dashboardCliente.usuario.nome?.charAt(0)?.toUpperCase() }}
+          </div>
+          <div>
+            <div class="fw-bold text-dark">{{ dashboardCliente.usuario.nome }}</div>
+            <div class="text-muted small">Desenvolvedor</div>
+          </div>
+        </div>
+        <a routerLink="/app/perfil"
+           class="btn btn-outline-secondary btn-sm w-100 rounded-3 mb-3">
+          Ver Perfil Completo
+        </a>
+
+        <div *ngIf="dashboardCliente.tecnologias.length > 0">
+          <p class="text-secondary small fw-semibold mb-2">Stack Tecnológica</p>
+          <div class="d-flex flex-wrap gap-1 mb-2">
+            <span *ngFor="let tech of dashboardCliente.tecnologias"
+                  class="badge tag-tech px-2 py-1 rounded">
+              {{ tech.nome }}
+            </span>
+          </div>
+        </div>
+
+        <button class="btn btn-link btn-sm text-verde text-decoration-none p-0 mt-1"
+                (click)="abrirModalTecnologias()">
+          <i class="bi bi-plus-circle me-1"></i>Adicionar tecnologia
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== DASHBOARD MENTOR ==================== -->
+<div *ngIf="!carregando && dashboard && ehMentor" class="container-fluid py-4">
+
+  <div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+      <h2 class="fw-bold">Bom dia, {{ dashboardMentor.usuario.nome }}!</h2>
+      <p class="text-muted">Aqui está o resumo da sua semana como mentor</p>
+    </div>
+  </div>
+
+  <!-- Cards métricas mentor -->
+  <div class="row g-4 mb-4">
+    <div class="col-xl-3 col-md-6">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <p class="text-secondary small fw-medium mb-1">Ganhos este mês</p>
+            <h3 class="fw-bold text-dark m-0">
+              {{ dashboardMentor.metricas.ganhosMes | currency:'BRL':'symbol':'1.2-2' }}
+            </h3>
+          </div>
+          <div class="rounded-3 p-3 bg-light text-success">
+            <i class="bi bi-currency-dollar fs-4"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <p class="text-secondary small fw-medium mb-1">Sessões Concluídas</p>
+            <h3 class="fw-bold text-dark m-0">{{ dashboardMentor.metricas.sessoesConcluidas }}</h3>
+          </div>
+          <div class="rounded-3 p-3 bg-verde-claro text-verde">
+            <i class="bi bi-check-circle fs-4"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <p class="text-secondary small fw-medium mb-1">Candidaturas Enviadas</p>
+            <h3 class="fw-bold text-dark m-0">{{ dashboardMentor.metricas.candidaturasEnviadas }}</h3>
+          </div>
+          <div class="rounded-3 p-3" style="background:#e0f7fa; color:#00796b;">
+            <i class="bi bi-send fs-4"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <p class="text-secondary small fw-medium mb-1">Avaliação Média</p>
+            <h3 class="fw-bold text-dark m-0">
+              <i class="bi bi-star-fill text-warning me-1" style="font-size: 1rem;"></i>
+              {{ dashboardMentor.metricas.mediaAvaliacao || '0.0' }}
+            </h3>
+          </div>
+          <div class="rounded-3 p-3" style="background:#fff8e1; color:#f57f17;">
+            <i class="bi bi-star fs-4"></i>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-</div>
+  <!-- Sessão em andamento -->
+  <div *ngIf="dashboardMentor.sessaoAndamento"
+       class="card border-0 rounded-4 p-4 mb-4 text-white"
+       style="background-color: #0D7377;">
+    <div class="d-flex justify-content-between align-items-center">
+      <div class="d-flex align-items-center gap-3">
+        <div>
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="badge rounded-pill bg-light text-verde" style="font-size: 0.7rem;">
+              ● SESSÃO EM ANDAMENTO
+            </span>
+          </div>
+          <h5 class="fw-bold m-0">{{ dashboardMentor.sessaoAndamento.publicacaoTitulo }}</h5>
+          <small class="opacity-75">com {{ dashboardMentor.sessaoAndamento.clienteNome }}</small>
+        </div>
+      </div>
+      <a [routerLink]="['/app/publicacoes', dashboardMentor.sessaoAndamento.publicacaoId]"
+         class="btn btn-light fw-bold text-verde rounded-pill px-4">
+        <i class="bi bi-chat-dots me-1"></i>Abrir Chat
+      </a>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Candidaturas -->
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-bold text-dark m-0">Minhas Candidaturas</h5>
+          <span class="badge bg-verde-claro text-verde rounded-pill">
+            {{ dashboardMentor.candidaturas.length }} total
+          </span>
+        </div>
+
+        <div *ngIf="dashboardMentor.candidaturas.length === 0" class="text-center py-4">
+          <i class="bi bi-inbox text-muted fs-2"></i>
+          <p class="text-muted small mt-2">Você ainda não enviou nenhuma candidatura.</p>
+        </div>
+
+        <div class="d-flex flex-column gap-3">
+          <div *ngFor="let candidatura of dashboardMentor.candidaturas"
+               class="d-flex justify-content-between align-items-center p-3 rounded-3 border"
+               [class.bg-light]="candidatura.statusResposta !== 3"
+               [class.opacity-50]="candidatura.statusResposta === 3">
