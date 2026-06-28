@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -43,6 +43,7 @@ export class DetalhePublicacaoComponent implements OnInit {
   private avaliacaoService = inject(AvaliacaoService);
   private mentorService = inject(MentorService);
   private authService = inject(AuthService);
+  private cdr = inject(ChangeDetectorRef);
   private readonly API_BASE = environment.apiServer;
 
   publicacaoId!: number;
@@ -53,15 +54,12 @@ export class DetalhePublicacaoComponent implements OnInit {
   usuarioLogadoId!: number;
   carregando: boolean = true;
 
-  // Mentor
   novaPropostaConteudo: string = '';
   jaRespondeu: boolean = false;
   propostaEnviadaPorMim?: RespostaPublicacao;
 
-  // Cliente
   propostasRecebidas: RespostaComMentor[] = [];
 
-  // Modal de avaliação
   modalAvaliacaoAberto = signal(false);
   propostaSendoAvaliada = signal<RespostaComMentor | null>(null);
   notaSelecionada = signal(0);
@@ -85,6 +83,7 @@ export class DetalhePublicacaoComponent implements OnInit {
 
   carregarDadosCompletos(): void {
     this.carregando = true;
+    this.cdr.detectChanges();
 
     forkJoin([
       this.publicacaoService.buscarPorId(this.publicacaoId),
@@ -104,43 +103,47 @@ export class DetalhePublicacaoComponent implements OnInit {
           this.propostaEnviadaPorMim = respostas.find(r => r.usuarioId === this.usuarioLogadoId);
           this.jaRespondeu = !!this.propostaEnviadaPorMim;
           this.carregando = false;
-        } else {
-          if (respostas.length === 0) {
-            this.propostasRecebidas = [];
-            this.carregando = false;
-            return;
-          }
-
-          // Busca dados dos mentores e avaliações existentes do cliente logado
-          forkJoin([
-            forkJoin(respostas.map(resp =>
-              this.http.get<any>(`${this.API_BASE}/usuarios/${resp.usuarioId}`).pipe(
-                map(user => ({ ...resp, nomeMentor: user.nome, emailMentor: user.email, mentorUsuarioId: user.id }))
-              )
-            )),
-            this.avaliacaoService.listarTodas()
-          ]).subscribe({
-            next: ([respostasComMentor, todasAvaliacoes]) => {
-              // Marca quais mentores já foram avaliados pelo cliente logado nesta publicação
-              this.propostasRecebidas = respostasComMentor.map(r => ({
-                ...r,
-                jaAvaliou: todasAvaliacoes.some(
-                  a => a.mentorUsuarioId === r.mentorUsuarioId
-                    && a.clienteUsuarioId === this.usuarioLogadoId
-                    && a.publicacaoId === this.publicacaoId
-                )
-              }));
-              this.carregando = false;
-            },
-            error: () => {
-              this.propostasRecebidas = respostas.map(r => ({ ...r, nomeMentor: 'Mentor Parceiro' }));
-              this.carregando = false;
-            }
-          });
+          this.cdr.detectChanges();
+          return;
         }
+
+        if (respostas.length === 0) {
+          this.propostasRecebidas = [];
+          this.carregando = false;
+          this.cdr.detectChanges();
+          return;
+        }
+
+        forkJoin([
+          forkJoin(respostas.map(resp =>
+            this.http.get<any>(`${this.API_BASE}/usuarios/${resp.usuarioId}`).pipe(
+              map(user => ({ ...resp, nomeMentor: user.nome, emailMentor: user.email, mentorUsuarioId: user.id }))
+            )
+          )),
+          this.avaliacaoService.listarTodas()
+        ]).subscribe({
+          next: ([respostasComMentor, todasAvaliacoes]) => {
+            this.propostasRecebidas = respostasComMentor.map(r => ({
+              ...r,
+              jaAvaliou: todasAvaliacoes.some(
+                a => a.mentorUsuarioId === r.mentorUsuarioId
+                  && a.clienteUsuarioId === this.usuarioLogadoId
+                  && a.publicacaoId === this.publicacaoId
+              )
+            }));
+            this.carregando = false;
+            this.cdr.detectChanges();
+          },
+          error: () => {
+            this.propostasRecebidas = respostas.map(r => ({ ...r, nomeMentor: 'Mentor Parceiro' }));
+            this.carregando = false;
+            this.cdr.detectChanges();
+          }
+        });
       },
       error: () => {
         this.carregando = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -169,8 +172,6 @@ export class DetalhePublicacaoComponent implements OnInit {
       }
     });
   }
-
-  // ── Modal de Avaliação ────────────────────────────────────────────────
 
   abrirModalAvaliacao(proposta: RespostaComMentor): void {
     this.propostaSendoAvaliada.set(proposta);
@@ -225,16 +226,13 @@ export class DetalhePublicacaoComponent implements OnInit {
       status: 1
     };
 
-    // 1. Cria a avaliação
     this.avaliacaoService.criar(novaAvaliacao).subscribe({
       next: () => {
-        // 2. Busca todas as avaliações do mentor para recalcular a média
         this.avaliacaoService.listarPorMentor(proposta.mentorUsuarioId!).subscribe({
           next: (avaliacoes) => {
             const total = avaliacoes.reduce((soma, a) => soma + a.valor, 0);
             const media = parseFloat((total / avaliacoes.length).toFixed(1));
 
-            // 3. Busca o mentor atual para fazer o PUT com todos os campos
             this.mentorService.buscarPorUsuarioId(proposta.mentorUsuarioId!).subscribe({
               next: (mentor) => {
                 if (mentor) {
@@ -245,7 +243,7 @@ export class DetalhePublicacaoComponent implements OnInit {
                     next: () => {
                       this.salvandoAvaliacao.set(false);
                       this.modalAvaliacaoAberto.set(false);
-                      this.carregarDadosCompletos(); // Atualiza tela
+                      this.carregarDadosCompletos();
                     },
                     error: () => {
                       this.salvandoAvaliacao.set(false);
