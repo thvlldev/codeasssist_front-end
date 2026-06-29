@@ -70,6 +70,13 @@ export class CadastroComponent {
       return;
     }
 
+    // Validação robusta de complexidade de senha via Regex
+    const regexSenha = /^(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>])(?=.*\d).{6,18}$/;
+    if (!regexSenha.test(this.cadastroData.password)) {
+      this.erroMsg = 'A senha deve conter de 6 a 18 caracteres, incluindo uma letra maiúscula, um número e um caractere especial.';
+      return;
+    }
+
     if (this.cadastroData.password !== this.cadastroData.confirmPassword) {
       this.erroMsg = 'As senhas inseridas não conferem.';
       return;
@@ -90,7 +97,7 @@ export class CadastroComponent {
         this.fecharModalENavegar();
       },
       error: (err) => {
-        console.error('Erro ao efetuar cadastro:', err);
+        console.error('Erro ao efuar cadastro:', err);
         this.enviando = false;
         this.erroMsg = 'Não foi possível criar a conta. Tente novamente.';
       }

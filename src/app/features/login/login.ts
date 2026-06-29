@@ -47,6 +47,15 @@ export class LoginComponent {
 
   handleSubmit() {
     this.erroMsg = '';
+
+    // Regex de validação programática da senha: 1 maiúscula, 1 especial, 1 número, de 6 a 18 chars
+    const regexSenha = /^(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>])(?=.*\d).{6,18}$/;
+
+    if (!regexSenha.test(this.loginData.password)) {
+      this.erroMsg = 'A senha informada não cumpre os requisitos mínimos de segurança.';
+      return;
+    }
+
     this.enviando = true;
 
     this.authService.login(this.loginData.email, this.loginData.password, this.loginData.papel).subscribe({
@@ -79,7 +88,6 @@ export class LoginComponent {
       modal?.hide();
     }
 
-    // Só vai para o onboarding se o papel escolhido ainda não tiver onboardingConcluido = 1
     this.router.navigate([precisaOnboarding ? '/onboarding' : '/app/dashboard']);
   }
 

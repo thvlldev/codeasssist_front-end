@@ -4,7 +4,6 @@
     <div class="card border-0 rounded-4 p-4"
          style="box-shadow: 0 4px 24px rgba(0,0,0,0.07);">
 
-      <!-- Header -->
       <div class="text-center mb-4">
         <div class="fw-bold mb-3" style="font-size: 18px; color: #0D7377; letter-spacing: -0.5px;">
           Code<span class="text-dark">Assist</span>
@@ -18,7 +17,6 @@
         }
       </div>
 
-      <!-- PASSO 0: Escolha do papel -->
       @if (passoAtual === 0) {
         <div class="d-flex flex-column gap-3">
 
@@ -62,7 +60,6 @@
         </p>
       }
 
-      <!-- PASSO 1: Formulário de dados -->
       @if (passoAtual === 1) {
 
       <button type="button" (click)="voltarParaEscolhaPapel()" class="btn btn-link text-secondary p-0 mb-3" style="font-size: 13px; text-decoration: none;">
@@ -80,7 +77,6 @@
         <div class="alert alert-danger small py-2" role="alert">{{ erroMsg }}</div>
       }
 
-      <!-- Social Login -->
       <div class="d-grid gap-2 mb-3">
         <button
           (click)="handleGooglecadastro()"
@@ -99,14 +95,12 @@
         </button>
       </div>
 
-      <!-- Divider -->
       <div class="d-flex align-items-center gap-2 my-3">
         <hr class="flex-grow-1 my-0">
         <span class="text-muted" style="font-size: 12px; white-space: nowrap;">Ou cadastre-se com e-mail</span>
         <hr class="flex-grow-1 my-0">
       </div>
 
-      <!-- Form -->
       <form (ngSubmit)="handleSubmit()" #cadastroForm="ngForm">
 
         <div class="mb-3">
@@ -147,7 +141,8 @@
 
         <div class="mb-3">
           <label for="password" class="form-label small fw-medium text-secondary">Senha</label>
-          <div class="input-group rounded-3 overflow-hidden" style="border: 1px solid #dee2e6;">
+          <div class="input-group rounded-3 overflow-hidden"
+               [style.border]="passwordModel.invalid && (passwordModel.dirty || passwordModel.touched) ? '1px solid #dc3545' : '1px solid #dee2e6'">
             <span class="input-group-text bg-white border-0 text-muted">
               <i class="bi bi-lock"></i>
             </span>
@@ -157,15 +152,27 @@
               name="password"
               [(ngModel)]="cadastroData.password"
               required
+              pattern="^(?=.*[A-Z])(?=.*[!@#$%^&*(),.?&quot;:{}|<>])(?=.*\d).{6,18}$"
+              #passwordModel="ngModel"
               class="form-control border-0 ps-0 shadow-none"
               placeholder="••••••••"
             >
           </div>
+          @if (passwordModel.invalid && (passwordModel.dirty || passwordModel.touched)) {
+            <div class="text-danger mt-1" style="font-size: 12px; line-height: 1.3;">
+              @if (passwordModel.errors?.['required']) {
+                A senha é obrigatória.
+              } @else if (passwordModel.errors?.['pattern']) {
+                A senha deve conter de 6 a 18 caracteres, incluindo uma letra maiúscula, um número e um caractere especial.
+              }
+            </div>
+          }
         </div>
 
-        <div class="mb-4">
+        <div class="mb-3">
           <label for="confirmPassword" class="form-label small fw-medium text-secondary">Confirmar senha</label>
-          <div class="input-group rounded-3 overflow-hidden" style="border: 1px solid #dee2e6;">
+          <div class="input-group rounded-3 overflow-hidden"
+               [style.border]="(confirmPasswordModel.invalid || cadastroData.password !== cadastroData.confirmPassword) && (confirmPasswordModel.dirty || confirmPasswordModel.touched) ? '1px solid #dc3545' : '1px solid #dee2e6'">
             <span class="input-group-text bg-white border-0 text-muted">
               <i class="bi bi-lock-fill"></i>
             </span>
@@ -175,10 +182,23 @@
               name="confirmPassword"
               [(ngModel)]="cadastroData.confirmPassword"
               required
+              pattern="^(?=.*[A-Z])(?=.*[!@#$%^&*(),.?&quot;:{}|<>])(?=.*\d).{6,18}$"
+              #confirmPasswordModel="ngModel"
               class="form-control border-0 ps-0 shadow-none"
               placeholder="••••••••"
             >
           </div>
+          @if ((confirmPasswordModel.invalid || cadastroData.password !== cadastroData.confirmPassword) && (confirmPasswordModel.dirty || confirmPasswordModel.touched)) {
+            <div class="text-danger mt-1" style="font-size: 12px; line-height: 1.3;">
+              @if (confirmPasswordModel.errors?.['required']) {
+                A confirmação da senha é obrigatória.
+              } @else if (cadastroData.password !== cadastroData.confirmPassword) {
+                As senhas inseridas não são iguais.
+              } @else if (confirmPasswordModel.errors?.['pattern']) {
+                A confirmação deve seguir as mesmas regras de segurança da senha.
+              }
+            </div>
+          }
         </div>
 
         <div class="form-check mb-4">
@@ -201,7 +221,7 @@
 
         <button
           type="submit"
-          [disabled]="!cadastroForm.valid || enviando"
+          [disabled]="!cadastroForm.valid || cadastroData.password !== cadastroData.confirmPassword || enviando"
           class="btn w-100 py-2 fw-bold text-white rounded-3"
           style="background: #0D7377; border: none; font-size: 15px; letter-spacing: 0.1px;">
           {{ enviando ? 'Criando conta...' : 'Criar conta' }}
@@ -221,5 +241,3 @@
     </div>
   </div>
 </div>
-
-

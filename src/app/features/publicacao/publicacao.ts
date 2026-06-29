@@ -40,7 +40,7 @@ export class PublicacoesComponent implements OnInit {
   ehMentor: boolean = false; // Flag para o chaveamento reativo da tela
 
   ngOnInit(): void {
-    // Determina o papel do usuário na sessão (1 ou 'Mentor' para Mentor)
+    // Determina o papel do usuário na sessão (1 para Mentor)
     const papel = this.authService.getPapelAtivo();
     this.ehMentor = papel === 1;
 
