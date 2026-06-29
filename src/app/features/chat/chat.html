@@ -1,0 +1,111 @@
+<nav class="navbar px-4 shadow-sm d-flex justify-content-between bg-white" style="height: 88px; border-bottom: 2px solid #0D7377;">
+  <div class="d-flex align-items-center gap-3">
+    <button class="btn btn-link p-0" style="color: #0D7377;" (click)="voltarParaDetalhe()">
+      <i class="bi bi-arrow-left fs-5"></i>
+    </button>
+
+    <div *ngIf="!carregando" class="d-flex align-items-center gap-3">
+      <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold flex-shrink-0"
+           style="width: 44px; height: 44px; background: #ffffff; color: #0D7377; font-size: 1.1rem; border: 2px solid #0D7377;">
+        {{ nomeMentor.charAt(0).toUpperCase() }}
+      </div>
+      <div>
+        <div class="fw-bold lh-1 mb-1" style="font-size: 1rem; color: #0D7377;">{{ nomeMentor }}</div>
+        <small class="text-muted" style="font-size: 0.78rem;">{{ tituloPublicacao }}</small>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex align-items-center gap-2" *ngIf="!carregando">
+    <!-- Badge finalizado -->
+    <span *ngIf="chatFinalizado"
+          class="badge rounded-pill px-3 py-2"
+          style="background: #f3f4f6; color: #6b7280; font-size: 0.78rem; border: 1px solid #e5e7eb;">
+      <i class="bi bi-check2-all me-1"></i>Finalizado
+    </span>
+
+    <!-- Badge online -->
+    <span *ngIf="!chatFinalizado"
+          class="badge rounded-pill px-3 py-2 d-flex align-items-center gap-1"
+          style="background: #E6F2F3; color: #0D7377; font-size: 0.78rem; border: 1px solid #0D7377;">
+      <span style="width: 8px; height: 8px; border-radius: 50%; background: #4ade80; display: inline-block;"></span>
+      Online
+    </span>
+
+    <!-- Botão finalizar — só cliente, só enquanto não finalizado -->
+    <button *ngIf="!ehMentor && !chatFinalizado"
+            class="btn btn-sm btn-outline-secondary rounded-pill px-3"
+            [disabled]="processando"
+            (click)="finalizarChat()">
+      <span *ngIf="processando" class="spinner-border spinner-border-sm me-1"></span>
+      <i *ngIf="!processando" class="bi bi-check2-all me-1"></i>
+      Finalizar
+    </button>
+  </div>
+</nav>
+
+<div *ngIf="carregando" class="text-center mt-5">
+  <div class="spinner-border" style="color: #0D7377;"></div>
+</div>
+
+<div *ngIf="!carregando"
+     class="d-flex flex-column"
+     style="height: calc(100vh - 88px);">
+
+  <!-- Banner finalizado -->
+  <div *ngIf="chatFinalizado"
+       class="text-center py-2 small fw-semibold"
+       style="background: #f3f4f6; color: #6b7280; border-bottom: 1px solid #e5e7eb;">
+    <i class="bi bi-check2-all me-1"></i>
+    Esta conversa foi finalizada. Você pode lê-la mas não pode mais enviar mensagens.
+  </div>
+
+  <!-- Mensagens -->
+  <div class="flex-grow-1 overflow-y-auto px-4 py-3"
+       style="background: #f0f4f8;">
+
+    <div *ngFor="let msg of mensagens"
+         class="d-flex mb-3"
+         [class.justify-content-start]="msg.autor === 'mentor'"
+         [class.justify-content-end]="msg.autor === 'cliente'">
+
+      <div *ngIf="msg.autor === 'mentor'"
+           class="rounded-circle d-flex align-items-center justify-content-center fw-bold me-2 flex-shrink-0"
+           style="width: 36px; height: 36px; background: #ffffff; color: #0D7377; font-size: 0.85rem; align-self: flex-end; border: 2px solid #0D7377;">
+        {{ nomeMentor.charAt(0).toUpperCase() }}
+      </div>
+
+      <div style="max-width: 70%;">
+        <div class="px-3 py-2 rounded-3 shadow-sm"
+             [style.background]="msg.autor === 'mentor' ? '#ffffff' : '#0D7377'"
+             [style.color]="msg.autor === 'mentor' ? '#1f2937' : '#ffffff'"
+             style="white-space: pre-wrap; line-height: 1.5; font-size: 0.9rem;">
+          {{ msg.texto }}
+        </div>
+        <small class="text-muted d-block mt-1"
+               [class.text-end]="msg.autor === 'cliente'"
+               style="font-size: 0.7rem;">
+          {{ msg.hora }}
+        </small>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Input — bloqueado se finalizado -->
+  <div class="px-4 py-3 bg-white border-top d-flex align-items-center gap-2">
+    <input type="text"
+           class="form-control rounded-pill border-0 bg-light"
+           [placeholder]="chatFinalizado ? 'Conversa finalizada' : 'Digite uma mensagem...'"
+           [(ngModel)]="novaMensagem"
+           (keydown.enter)="enviarMensagem()"
+           [disabled]="chatFinalizado"
+           style="font-size: 0.9rem;">
+    <button class="btn btn-verde rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+            style="width: 42px; height: 42px;"
+            (click)="enviarMensagem()"
+            [disabled]="!novaMensagem.trim() || chatFinalizado">
+      <i class="bi bi-send-fill" style="font-size: 0.85rem;"></i>
+    </button>
+  </div>
+</div>

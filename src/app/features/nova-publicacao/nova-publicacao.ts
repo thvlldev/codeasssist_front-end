@@ -76,7 +76,6 @@ export class NovaPublicacaoComponent implements OnInit {
     if (!this.novaPublicacao.titulo?.trim() ||
         !this.novaPublicacao.conteudo?.trim() ||
         this.tecnologiasIds.length === 0) {
-      alert('Preencha todos os campos obrigatórios (*) e selecione ao menos uma tecnologia.');
       return;
     }
 
@@ -95,12 +94,10 @@ export class NovaPublicacaoComponent implements OnInit {
       })
     ).subscribe({
       next: () => {
-        alert('Sua solicitação de mentoria foi publicada com sucesso!');
         this.router.navigate(['/app/publicacoes']);
       },
       error: (err) => {
         console.error('Erro ao salvar publicação:', err);
-        alert('Não foi possível salvar a publicação.');
         this.router.navigate(['/app/publicacoes']);
       }
     });

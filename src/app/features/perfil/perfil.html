@@ -10,206 +10,413 @@
     {{ erroMsg() }}
   </div>
 
-  <div class="row g-4" *ngIf="!loading() && usuarioLogado()">
+  <!-- ==================== PERFIL CLIENTE ==================== -->
+  <ng-container *ngIf="!loading() && usuarioLogado() && usuarioLogado()!.tipoUsuario === 0">
+    <div class="row g-4">
 
-    <div class="col-12 col-lg-4">
+      <!-- Coluna esquerda -->
+      <div class="col-12 col-lg-4">
+        <div class="card border-0 shadow-sm text-center p-4 mb-4 bg-white rounded-3">
+          <div class="d-flex justify-content-center mb-3">
+            <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm"
+                 style="width: 100px; height: 100px; background-color: #e0f2f1; color: #00796b; font-size: 2rem;">
+              {{ getIniciais(usuarioLogado()!.nome) }}
+            </div>
+          </div>
 
-      <div class="card border-0 shadow-sm text-center p-4 mb-4 bg-white rounded-3">
-        <div class="d-flex justify-content-center mb-3">
-          <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm"
-               style="width: 100px; height: 100px; background-color: #e0f2f1; color: #00796b; font-size: 2rem;">
-            {{ getIniciais(usuarioLogado()!.nome) }}
+          <h4 class="fw-bold mb-1 text-dark">{{ usuarioLogado()!.nome }}</h4>
+          <p class="text-muted small mb-3">Desenvolvedor / Cliente</p>
+
+          <button class="btn btn-outline-secondary btn-sm px-4 rounded-2 mb-4"
+                  (click)="abrirModalEdicao()">
+            <i class="bi bi-pencil-square me-1"></i> Editar Perfil
+          </button>
+
+          <!-- Stats rápidos -->
+          <div class="row border-top pt-3 text-center g-0">
+            <div class="col-4">
+              <h5 class="fw-bold mb-0" style="color: #0D7377;">{{ totalPublicacoes }}</h5>
+              <small class="text-muted" style="font-size: 0.7rem;">Publicações</small>
+            </div>
+            <div class="col-4 border-start border-end">
+              <h5 class="fw-bold mb-0 text-warning">{{ publicacoesAbertas }}</h5>
+              <small class="text-muted" style="font-size: 0.7rem;">Em aberto</small>
+            </div>
+            <div class="col-4">
+              <h5 class="fw-bold mb-0 text-success">{{ publicacoesFinalizadas }}</h5>
+              <small class="text-muted" style="font-size: 0.7rem;">Finalizadas</small>
+            </div>
+          </div>
+
+          <div class="text-start border-top mt-3 pt-3 text-secondary small">
+            <div class="mb-2">
+              <i class="bi bi-geo-alt me-2 text-muted"></i>Rio de Janeiro, RJ
+            </div>
+            <div class="mb-2">
+              <i class="bi bi-calendar-event me-2 text-muted"></i>
+              Membro desde {{ formatarData(usuarioLogado()!.dataCadastro) }}
+            </div>
+            <div class="text-truncate">
+              <i class="bi bi-envelope me-2 text-muted"></i>{{ usuarioLogado()!.email }}
+            </div>
           </div>
         </div>
 
-        <h4 class="fw-bold mb-1 text-dark">{{ usuarioLogado()!.nome }}</h4>
-        <p class="text-muted small mb-3">
-          {{ usuarioLogado()!.tipoUsuario === 1 ? 'Mentor Especialista' : 'Desenvolvedor / Cliente' }}
-        </p>
-
-        <button class="btn btn-outline-secondary btn-sm px-4 rounded-2 mb-4">
-          <i class="bi bi-pencil-square me-1"></i> Editar Perfil
-        </button>
-
-        <div class="row border-top pt-3 text-center" *ngIf="usuarioLogado()!.tipoUsuario === 1">
-          <div class="col-12">
-            <h5 class="fw-bold mb-0 text-warning">
-              <i class="bi bi-star-fill me-1"></i>{{ dadosMentor()?.mediaAvaliacao || '0.0' }}
-            </h5>
-            <span class="text-muted small">Média de Avaliações</span>
-          </div>
-        </div>
-
-        <div class="text-start border-top mt-3 pt-3 text-secondary small">
-          <div class="mb-2">
-            <i class="bi bi-geo-alt me-2 text-muted"></i>Rio de Janeiro, RJ
-          </div>
-          <div class="mb-2">
-            <i class="bi bi-calendar-event me-2 text-muted"></i>Membro desde {{ formatarData(usuarioLogado()!.dataCadastro) }}
-          </div>
-          <div class="mb-2">
-            <i class="bi bi-chat-left-text me-2 text-muted"></i>Responde em x horas
-          </div>
-          <div class="text-truncate">
-            <i class="bi bi-envelope me-2 text-muted"></i>{{ usuarioLogado()!.email }}
-          </div>
+        <!-- Stack -->
+        <div class="card border-0 shadow-sm p-4 bg-white rounded-3" *ngIf="dadosCliente()?.stack">
+          <h6 class="fw-bold text-dark mb-2">
+            <i class="bi bi-layers me-2" style="color: #0D7377;"></i>Stack Principal
+          </h6>
+          <span class="badge px-3 py-2 rounded-2 fw-medium"
+                style="background-color: #e0f2f1; color: #00796b; font-size: 0.9rem;">
+            {{ dadosCliente()!.stack }}
+          </span>
         </div>
       </div>
 
-      <div class="card border-0 shadow-sm p-4 bg-white rounded-3"
-           style="background-color: #f0f7f7 !important;"
-           *ngIf="usuarioLogado()!.tipoUsuario === 1">
-        <span class="text-secondary small fw-semibold">Taxa por Hora</span>
-        <h2 class="fw-bold my-2" style="color: #00796b;">R$ {{ dadosMentor()?.precoHora || '0' }}</h2>
-        <span class="text-muted small">Valor médio cobrado por hora de mentoria</span>
+      <!-- Coluna direita -->
+      <div class="col-12 col-lg-8">
+
+        <!-- Sobre -->
+        <div class="card border-0 shadow-sm p-4 mb-4 bg-white rounded-3">
+          <h5 class="fw-bold mb-3 text-dark">Sobre</h5>
+          <p class="text-secondary mb-0 lh-base">
+            {{ dadosCliente()?.descricao || 'Nenhuma descrição informada ainda.' }}
+          </p>
+        </div>
+
+        <!-- Publicações recentes -->
+        <div class="card border-0 shadow-sm p-4 bg-white rounded-3">
+          <h5 class="fw-bold mb-3 text-dark d-flex align-items-center">
+            <i class="bi bi-file-earmark-text me-2" style="color: #0D7377;"></i>
+            Minhas Publicações
+          </h5>
+
+          <div *ngIf="publicacoesCliente().length === 0" class="text-center py-4">
+            <i class="bi bi-inbox text-muted fs-2"></i>
+            <p class="text-muted small mt-2 mb-0">Nenhuma publicação criada ainda.</p>
+          </div>
+
+          <div class="d-flex flex-column gap-3">
+            <div *ngFor="let pub of publicacoesCliente().slice(0, 5)"
+                 class="d-flex justify-content-between align-items-start p-3 rounded-3 border bg-light">
+              <div class="flex-grow-1 me-3" style="min-width: 0;">
+                <h6 class="fw-bold text-dark mb-1 text-truncate">{{ pub.titulo }}</h6>
+                <p class="text-muted small mb-1 text-truncate">{{ pub.conteudo }}</p>
+                <small class="text-muted">
+                  <i class="bi bi-currency-dollar"></i>
+                  {{ pub.orcamentoMin | currency:'BRL':'symbol':'1.0-0' }} –
+                  {{ pub.orcamentoMax | currency:'BRL':'symbol':'1.0-0' }}
+                </small>
+              </div>
+              <span class="badge rounded-pill flex-shrink-0"
+                    [ngClass]="getClasseStatusPublicacao(pub.status)">
+                {{ getLabelStatusPublicacao(pub.status) }}
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
+  </ng-container>
 
-    <div class="col-12 col-lg-8">
+  <!-- ==================== PERFIL MENTOR ==================== -->
+  <ng-container *ngIf="!loading() && usuarioLogado() && usuarioLogado()!.tipoUsuario === 1">
+    <div class="row g-4">
 
-      <div class="card border-0 shadow-sm p-4 mb-4 bg-white rounded-3">
-        <h5 class="fw-bold mb-3 text-dark">Sobre</h5>
-        <p class="text-secondary mb-0 lh-base">
-          {{ usuarioLogado()!.tipoUsuario === 1 ? dadosMentor()?.descricao : dadosCliente()?.descricao || 'Nenhuma descrição informada ainda.' }}
-        </p>
-      </div>
-
-      <div class="card border-0 shadow-sm p-4 mb-4 bg-white rounded-3">
-        <h5 class="fw-bold mb-3 text-dark d-flex align-items-center">
-          <i class="bi bi-code-slash me-2" style="color: #00796b;"></i>
-          {{ usuarioLogado()!.tipoUsuario === 1 ? 'Tecnologias de Mentoria' : 'Stack Tecnológica' }}
-        </h5>
-
-        <p *ngIf="tecnologiasDoUsuario().length === 0" class="text-muted small mb-3">
-          Nenhuma tecnologia adicionada ao perfil.
-        </p>
-
-        <div *ngIf="tecnologiasDoUsuario().length > 0" class="d-flex flex-wrap gap-2 mb-3">
-          <span *ngFor="let tech of tecnologiasDoUsuario()"
-                class="badge fw-medium px-3 py-2 rounded-2"
-                style="background-color: #e8f5e9; color: #1b5e20; font-size: 0.9rem;">
-            {{ tech.nome }}
-          </span>
-        </div>
-
-        <a href="javascript:void(0)"
-           class="text-decoration-none small fw-semibold"
-           style="color: #00796b;"
-           (click)="abrirModalTecnologias()">
-          <span *ngIf="!modalLoading()">+ Adicionar tecnologia</span>
-          <span *ngIf="modalLoading()">
-            <span class="spinner-border spinner-border-sm me-1" role="status"></span> Carregando...
-          </span>
-        </a>
-      </div>
-
-      <div class="card border-0 shadow-sm p-4 mb-4 bg-white rounded-3" *ngIf="usuarioLogado()!.tipoUsuario === 1">
-        <h5 class="fw-bold mb-4 text-dark d-flex align-items-center">
-          <i class="bi bi-chat-square-heart me-2" style="color: #00796b;"></i>
-          Depoimentos e Avaliações
-        </h5>
-
-        <div class="text-center py-4 border rounded-3 bg-light" *ngIf="avaliacoesMentor().length === 0">
-          <i class="bi bi-star text-muted fs-2"></i>
-          <p class="text-secondary small mt-2 mb-0">Você ainda não recebeu nenhuma avaliação de alunos.</p>
-        </div>
-
-        <div class="d-flex flex-column gap-3" *ngIf="avaliacoesMentor().length > 0">
-          <div class="p-3 border rounded-3 bg-light" *ngFor="let avaliacao of avaliacoesMentor()">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <div class="d-flex align-items-center gap-2">
-                <div class="rounded-circle d-flex align-items-center justify-content-center fw-semibold small"
-                     style="width: 32px; height: 32px; background-color: #e0f2f1; color: #00796b;">
-                  {{ getIniciais(avaliacao.nomeCliente) }}
-                </div>
-                <span class="fw-bold text-dark small">{{ avaliacao.nomeCliente }}</span>
-              </div>
-              <div class="text-warning small">
-                <i class="bi bi-star-fill me-1" *ngFor="let s of gerarEstrelas(avaliacao.valor)"></i>
-                <span class="text-dark fw-semibold ms-1">{{ avaliacao.valor }}</span>
-              </div>
+      <div class="col-12 col-lg-4">
+        <div class="card border-0 shadow-sm text-center p-4 mb-4 bg-white rounded-3">
+          <div class="d-flex justify-content-center mb-3">
+            <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm"
+                 style="width: 100px; height: 100px; background-color: #e0f2f1; color: #00796b; font-size: 2rem;">
+              {{ getIniciais(usuarioLogado()!.nome) }}
             </div>
-            <p class="text-secondary small mb-0 fs-6" style="white-space: pre-wrap; font-style: italic;">
-              "{{ avaliacao.comentario }}"
-            </p>
+          </div>
+
+          <h4 class="fw-bold mb-1 text-dark">{{ usuarioLogado()!.nome }}</h4>
+          <p class="text-muted small mb-3">Mentor Especialista</p>
+
+          <button class="btn btn-outline-secondary btn-sm px-4 rounded-2 mb-4"
+                  (click)="abrirModalEdicaoMentor()">
+            <i class="bi bi-pencil-square me-1"></i> Editar Perfil
+          </button>
+
+          <div class="row border-top pt-3 text-center">
+            <div class="col-12">
+              <h5 class="fw-bold mb-0 text-warning">
+                <i class="bi bi-star-fill me-1"></i>{{ dadosMentor()?.mediaAvaliacao || '0.0' }}
+              </h5>
+              <span class="text-muted small">Média de Avaliações</span>
+            </div>
+          </div>
+
+          <div class="text-start border-top mt-3 pt-3 text-secondary small">
+            <div class="mb-2">
+              <i class="bi bi-geo-alt me-2 text-muted"></i>Rio de Janeiro, RJ
+            </div>
+            <div class="mb-2">
+              <i class="bi bi-calendar-event me-2 text-muted"></i>
+              Membro desde {{ formatarData(usuarioLogado()!.dataCadastro) }}
+            </div>
+            <div class="text-truncate">
+              <i class="bi bi-envelope me-2 text-muted"></i>{{ usuarioLogado()!.email }}
+            </div>
           </div>
         </div>
+
+        <div class="card border-0 shadow-sm p-4 bg-white rounded-3"
+             style="background-color: #f0f7f7 !important;">
+          <span class="text-secondary small fw-semibold">Taxa por Hora</span>
+          <h2 class="fw-bold my-2" style="color: #00796b;">
+            R$ {{ dadosMentor()?.precoHora || '0' }}
+          </h2>
+          <span class="text-muted small">Valor médio cobrado por hora de mentoria</span>
+        </div>
       </div>
 
+      <div class="col-12 col-lg-8">
+
+        <div class="card border-0 shadow-sm p-4 mb-4 bg-white rounded-3">
+          <h5 class="fw-bold mb-3 text-dark">Sobre</h5>
+          <p class="text-secondary mb-0 lh-base">
+            {{ dadosMentor()?.descricao || 'Nenhuma descrição informada ainda.' }}
+          </p>
+        </div>
+
+        <div class="card border-0 shadow-sm p-4 mb-4 bg-white rounded-3">
+          <h5 class="fw-bold mb-3 text-dark d-flex align-items-center">
+            <i class="bi bi-code-slash me-2" style="color: #00796b;"></i>
+            Tecnologias de Mentoria
+          </h5>
+
+          <p *ngIf="tecnologiasDoUsuario().length === 0" class="text-muted small mb-3">
+            Nenhuma tecnologia adicionada ao perfil.
+          </p>
+
+          <div *ngIf="tecnologiasDoUsuario().length > 0" class="d-flex flex-wrap gap-2 mb-3">
+            <span *ngFor="let tech of tecnologiasDoUsuario()"
+                  class="badge fw-medium px-3 py-2 rounded-2"
+                  style="background-color: #e8f5e9; color: #1b5e20; font-size: 0.9rem;">
+              {{ tech.nome }}
+            </span>
+          </div>
+
+          <a href="javascript:void(0)"
+             class="text-decoration-none small fw-semibold"
+             style="color: #00796b;"
+             (click)="abrirModalTecnologias()">
+            <span *ngIf="!modalLoading()">+ Adicionar tecnologia</span>
+            <span *ngIf="modalLoading()">
+              <span class="spinner-border spinner-border-sm me-1" role="status"></span> Carregando...
+            </span>
+          </a>
+        </div>
+
+        <div class="card border-0 shadow-sm p-4 mb-4 bg-white rounded-3">
+          <h5 class="fw-bold mb-4 text-dark d-flex align-items-center">
+            <i class="bi bi-chat-square-heart me-2" style="color: #00796b;"></i>
+            Depoimentos e Avaliações
+          </h5>
+
+          <div class="text-center py-4 border rounded-3 bg-light" *ngIf="avaliacoesMentor().length === 0">
+            <i class="bi bi-star text-muted fs-2"></i>
+            <p class="text-secondary small mt-2 mb-0">Você ainda não recebeu nenhuma avaliação.</p>
+          </div>
+
+          <div class="d-flex flex-column gap-3" *ngIf="avaliacoesMentor().length > 0">
+            <div class="p-3 border rounded-3 bg-light" *ngFor="let avaliacao of avaliacoesMentor()">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="d-flex align-items-center gap-2">
+                  <div class="rounded-circle d-flex align-items-center justify-content-center fw-semibold small"
+                       style="width: 32px; height: 32px; background-color: #e0f2f1; color: #00796b;">
+                    {{ getIniciais(avaliacao.nomeCliente) }}
+                  </div>
+                  <span class="fw-bold text-dark small">{{ avaliacao.nomeCliente }}</span>
+                </div>
+                <div class="text-warning small">
+                  <i class="bi bi-star-fill me-1" *ngFor="let s of gerarEstrelas(avaliacao.valor)"></i>
+                  <span class="text-dark fw-semibold ms-1">{{ avaliacao.valor }}</span>
+                </div>
+              </div>
+              <p class="text-secondary small mb-0 fs-6" style="white-space: pre-wrap; font-style: italic;">
+                "{{ avaliacao.comentario }}"
+              </p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </ng-container>
+</div>
+
+<!-- ── MODAL EDITAR PERFIL (CLIENTE) ─────────────────────────────────────── -->
+<div *ngIf="modalEdicaoAberto()"
+     style="position: fixed; inset: 0; z-index: 1050; display: flex; align-items: center; justify-content: center;">
+  <div (click)="fecharModalEdicao()"
+       style="position: absolute; inset: 0; background: rgba(0,0,0,0.5);"></div>
+
+  <div style="position: relative; z-index: 1; width: 100%; max-width: 480px;
+              background: #fff; border-radius: 12px;
+              box-shadow: 0 8px 32px rgba(0,0,0,0.18); margin: 16px;">
+
+    <div class="d-flex align-items-center justify-content-between px-4 py-3 rounded-top"
+         style="background-color: #f0f7f7; border-bottom: 1px solid #e0f2f1;">
+      <h5 class="mb-0 fw-bold" style="color: #00796b;">
+        <i class="bi bi-pencil-square me-2"></i>Editar Perfil
+      </h5>
+      <button type="button" class="btn-close" (click)="fecharModalEdicao()"></button>
+    </div>
+
+    <div class="px-4 py-4">
+
+      <div *ngIf="erroEdicao()" class="alert alert-danger py-2 small mb-3">{{ erroEdicao() }}</div>
+
+      <div class="mb-3">
+        <label class="form-label small fw-semibold text-secondary">Nome</label>
+        <input type="text" class="form-control form-control-custom"
+               [value]="edicao().nome"
+               (input)="atualizarNomeEdicao($event)">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label small fw-semibold text-secondary">Sobre você</label>
+        <textarea class="form-control form-control-custom" rows="3"
+                  placeholder="Descreva brevemente seu perfil..."
+                  [value]="edicao().descricao"
+                  (input)="atualizarDescricaoEdicao($event)">
+        </textarea>
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label small fw-semibold text-secondary">Stack Principal</label>
+        <div class="d-flex flex-wrap gap-2 mt-1">
+          <button *ngFor="let opcao of opcoesStack()"
+                  type="button"
+                  class="btn btn-sm rounded-pill"
+                  [ngClass]="edicao().stack === opcao.descricao ? 'btn-verde' : 'btn-outline-secondary'"
+                  (click)="selecionarStack(opcao.descricao)">
+            {{ opcao.descricao }}
+          </button>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-end gap-2">
+        <button class="btn btn-light rounded-pill px-4" (click)="fecharModalEdicao()">
+          Cancelar
+        </button>
+        <button class="btn btn-verde rounded-pill px-4"
+                (click)="salvarEdicao()"
+                [disabled]="salvandoEdicao()">
+          <span *ngIf="salvandoEdicao()" class="spinner-border spinner-border-sm me-2"></span>
+          {{ salvandoEdicao() ? 'Salvando...' : 'Salvar' }}
+        </button>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- ── MODAL ANGULAR (zoneless) ───────────────────────────────────────────── -->
-<div *ngIf="modalAberto()"
+<!-- ── MODAL EDITAR PERFIL (MENTOR) ──────────────────────────────────────── -->
+<div *ngIf="modalEdicaoMentorAberto()"
      style="position: fixed; inset: 0; z-index: 1050; display: flex; align-items: center; justify-content: center;">
-
-  <!-- Backdrop -->
-  <div (click)="fecharModalTecnologias()"
+  <div (click)="fecharModalEdicaoMentor()"
        style="position: absolute; inset: 0; background: rgba(0,0,0,0.5);"></div>
 
-  <!-- Caixa -->
-  <div style="position: relative; z-index: 1; width: 100%; max-width: 520px; max-height: 85vh;
-              display: flex; flex-direction: column; background: #fff; border-radius: 12px;
+  <div style="position: relative; z-index: 1; width: 100%; max-width: 480px;
+              background: #fff; border-radius: 12px;
               box-shadow: 0 8px 32px rgba(0,0,0,0.18); margin: 16px;">
 
-    <!-- Header -->
     <div class="d-flex align-items-center justify-content-between px-4 py-3 rounded-top"
          style="background-color: #f0f7f7; border-bottom: 1px solid #e0f2f1;">
       <h5 class="mb-0 fw-bold" style="color: #00796b;">
-        <i class="bi bi-code-slash me-2"></i> Gerenciar Tecnologias
+        <i class="bi bi-pencil-square me-2"></i>Editar Perfil
       </h5>
-      <button type="button" class="btn-close" (click)="fecharModalTecnologias()" aria-label="Fechar"></button>
+      <button type="button" class="btn-close" (click)="fecharModalEdicaoMentor()"></button>
     </div>
 
-    <!-- Body -->
-    <div class="px-4 py-3" style="overflow-y: auto; flex: 1;">
+    <div class="px-4 py-4">
 
-      <div *ngIf="modalLoading()" class="text-center py-4">
-        <div class="spinner-border" style="color: #00796b;" role="status"></div>
-        <p class="text-muted small mt-2">Carregando tecnologias...</p>
+      <div *ngIf="erroEdicaoMentor()" class="alert alert-danger py-2 small mb-3">{{ erroEdicaoMentor() }}</div>
+
+      <div class="mb-3">
+        <label class="form-label small fw-semibold text-secondary">Nome</label>
+        <input type="text" class="form-control form-control-custom"
+               [value]="edicaoMentor().nome"
+               (input)="atualizarNomeEdicaoMentor($event)">
       </div>
 
-      <ng-container *ngIf="!modalLoading()">
-        <p class="text-muted small mb-3">Clique para adicionar ou remover tecnologias do seu perfil.</p>
+      <div class="mb-3">
+        <label class="form-label small fw-semibold text-secondary">Sobre você</label>
+        <textarea class="form-control form-control-custom" rows="3"
+                  placeholder="Descreva brevemente sua experiência como mentor..."
+                  [value]="edicaoMentor().descricao"
+                  (input)="atualizarDescricaoEdicaoMentor($event)">
+        </textarea>
+      </div>
 
-        <div *ngIf="modalErro()" class="alert alert-danger py-2 small">{{ modalErro() }}</div>
+      <div class="mb-4">
+        <label class="form-label small fw-semibold text-secondary">Taxa por Hora (R$)</label>
+        <input type="number" min="0" step="1" class="form-control form-control-custom"
+               [value]="edicaoMentor().precoHora"
+               (input)="atualizarPrecoHoraEdicaoMentor($event)">
+      </div>
 
-        <div *ngIf="todasTecnologias().length === 0" class="text-center text-muted py-4">
-          <i class="bi bi-inbox fs-3"></i>
-          <p class="mt-2 small">Nenhuma tecnologia disponível.</p>
-        </div>
-
-        <div class="d-flex flex-wrap gap-2">
-          <button
-            *ngFor="let tech of todasTecnologias()"
-            type="button"
-            class="btn btn-sm rounded-pill d-flex align-items-center gap-1"
-            [ngClass]="tech.vinculada ? 'btn-success' : 'btn-outline-secondary'"
-            [disabled]="salvandoTecnologia() === tech.id"
-            (click)="toggleTecnologia(tech)">
-
-            <span *ngIf="salvandoTecnologia() === tech.id"
-                  class="spinner-border spinner-border-sm" role="status">
-            </span>
-            <i *ngIf="salvandoTecnologia() !== tech.id && tech.vinculada"  class="bi bi-check-lg"></i>
-            <i *ngIf="salvandoTecnologia() !== tech.id && !tech.vinculada" class="bi bi-plus-lg"></i>
-            {{ tech.nome }}
-          </button>
-        </div>
-      </ng-container>
+      <div class="d-flex justify-content-end gap-2">
+        <button class="btn btn-light rounded-pill px-4" (click)="fecharModalEdicaoMentor()">
+          Cancelar
+        </button>
+        <button class="btn btn-verde rounded-pill px-4"
+                (click)="salvarEdicaoMentor()"
+                [disabled]="salvandoEdicaoMentor()">
+          <span *ngIf="salvandoEdicaoMentor()" class="spinner-border spinner-border-sm me-2"></span>
+          {{ salvandoEdicaoMentor() ? 'Salvando...' : 'Salvar' }}
+        </button>
+      </div>
     </div>
+  </div>
+</div>
 
-    <!-- Footer -->
-    <div class="px-4 py-3 d-flex justify-content-end"
-         style="border-top: 1px solid #e0f2f1;">
-      <button type="button"
-              class="btn btn-sm px-4 fw-semibold text-white"
-              (click)="fecharModalTecnologias()"
-              style="background-color: #00796b;">
-        Concluir
+<!-- ── MODAL TECNOLOGIAS (MENTOR) ─────────────────────────────────────────── -->
+<div *ngIf="modalAberto()"
+     class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
+     style="background: rgba(0,0,0,0.5); z-index: 1050;">
+  <div class="card border-0 shadow rounded-4 p-4" style="width: 100%; max-width: 520px; max-height: 80vh; overflow-y: auto;">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="fw-bold text-dark m-0">Tecnologias do Perfil</h5>
+      <button class="btn btn-link text-muted p-0" (click)="fecharModalTecnologias()">
+        <i class="bi bi-x-lg fs-5"></i>
       </button>
     </div>
 
+    <p class="text-secondary small mb-3">
+      Selecione as tecnologias que você domina. Elas serão usadas no match com publicações.
+    </p>
+
+    <div *ngIf="modalLoading()" class="text-center py-4">
+      <div class="spinner-border" style="color: #00796b;" role="status"></div>
+      <p class="text-muted small mt-2">Carregando tecnologias...</p>
+    </div>
+
+    <div *ngIf="modalErro()" class="alert alert-danger py-2 small mb-3">{{ modalErro() }}</div>
+
+    <div *ngIf="!modalLoading()" class="d-flex flex-wrap gap-2 mb-4">
+      <button *ngFor="let tech of todasTecnologias()"
+              type="button"
+              class="btn btn-tag"
+              [ngClass]="tecnologiaEstaAtiva(tech.id) ? 'btn-tag-active' : 'btn-tag-inactive'"
+              (click)="toggleTecnologia(tech.id)">
+        {{ tech.nome }}
+      </button>
+    </div>
+
+    <div class="d-flex justify-content-end gap-2">
+      <button class="btn btn-light rounded-pill px-4" (click)="fecharModalTecnologias()">Cancelar</button>
+      <button class="btn btn-verde rounded-pill px-4"
+              (click)="salvarTecnologias()"
+              [disabled]="salvandoTecnologias()">
+        <span *ngIf="salvandoTecnologias()" class="spinner-border spinner-border-sm me-2"></span>
+        {{ salvandoTecnologias() ? 'Salvando...' : 'Salvar' }}
+      </button>
+    </div>
   </div>
 </div>

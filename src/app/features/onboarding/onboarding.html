@@ -29,153 +29,156 @@
       <!-- ===================== FLUXO CLIENTE ===================== -->
       @if (!ehMentor) {
 
-      @if (passo() === 1) {
-        <div class="ob-progress d-flex gap-2 mb-4">
-          <div class="ob-dot active"></div>
-          <div class="ob-dot"></div>
-          <div class="ob-dot"></div>
-        </div>
-        <p class="fw-semibold small mb-2" style="color: #0D7377;">Pergunta 1 de 3</p>
-        <h2 class="fw-bold mb-4" style="font-size: 24px;">Como você descreveria melhor o seu perfil?</h2>
-        <div class="d-flex flex-column gap-2">
-          <button class="ob-option" (click)="selecionarPerfil(1)">Iniciante / Estudante</button>
-          <button class="ob-option" (click)="selecionarPerfil(2)">Intermediário / Freelancer</button>
-          <button class="ob-option" (click)="selecionarPerfil(3)">Avançado / Desenvolvedor Full Time</button>
-        </div>
-      }
+        @if (passo() === 1) {
+          <div class="ob-progress d-flex gap-2 mb-4">
+            <div class="ob-dot active"></div>
+            <div class="ob-dot"></div>
+            <div class="ob-dot"></div>
+          </div>
+          <p class="fw-semibold small mb-2" style="color: #0D7377;">Pergunta 1 de 3</p>
+          <h2 class="fw-bold mb-4" style="font-size: 24px;">{{ getPergunta(1) }}</h2>
+          <div class="d-flex flex-column gap-2">
+            @for (opcao of opcoesPergunta1; track opcao.id) {
+              <button class="ob-option"
+                [class.ob-option-selecionada]="respostas.opcaoSelecionadaId === opcao.id"
+                (click)="selecionarOpcaoPergunta1(opcao)">
+                {{ opcao.descricao }}
+              </button>
+            }
+          </div>
+        }
 
-      @if (passo() === 2) {
-        <div class="ob-progress d-flex gap-2 mb-4">
-          <div class="ob-dot active"></div>
-          <div class="ob-dot active"></div>
-          <div class="ob-dot"></div>
-        </div>
-        <p class="fw-semibold small mb-2" style="color: #0D7377;">Pergunta 2 de 3</p>
-        <h2 class="fw-bold mb-2" style="font-size: 24px;">Para que você vai usar o CodeAssist?</h2>
-        <p class="text-secondary mb-4" style="font-size: 14px;">Descreva brevemente como pretende utilizar a plataforma.</p>
-        <textarea
-          class="form-control rounded-3 mb-4"
-          rows="4"
-          placeholder="Ex: Quero encontrar mentores para me ajudar com React e Node.js..."
-          [(ngModel)]="respostas.uso"
-          style="border: 1.5px solid #dee2e6; font-size: 14px; resize: none;"
-        ></textarea>
-        <button class="btn fw-bold text-white rounded-3 px-4 py-2"
-          style="background: #0D7377; border: none; font-size: 15px; width: fit-content;"
-          (click)="passo.set(3)">
-          Continuar →
-        </button>
-      }
+        @if (passo() === 2) {
+          <div class="ob-progress d-flex gap-2 mb-4">
+            <div class="ob-dot active"></div>
+            <div class="ob-dot active"></div>
+            <div class="ob-dot"></div>
+          </div>
+          <p class="fw-semibold small mb-2" style="color: #0D7377;">Pergunta 2 de 3</p>
+          <h2 class="fw-bold mb-2" style="font-size: 24px;">{{ getPergunta(2) }}</h2>
+          <p class="text-secondary mb-4" style="font-size: 14px;">Descreva brevemente como pretende utilizar a plataforma.</p>
+          <textarea
+            class="form-control rounded-3 mb-4"
+            rows="4"
+            placeholder="Ex: Quero encontrar mentores para me ajudar com React e Node.js..."
+            [(ngModel)]="respostas.uso"
+            style="border: 1.5px solid #dee2e6; font-size: 14px; resize: none;">
+          </textarea>
+          <button class="btn fw-bold text-white rounded-3 px-4 py-2"
+            style="background: #0D7377; border: none; font-size: 15px; width: fit-content;"
+            (click)="passo.set(3)">
+            Continuar →
+          </button>
+        }
 
-      @if (passo() === 3) {
-        <div class="ob-progress d-flex gap-2 mb-4">
-          <div class="ob-dot active"></div>
-          <div class="ob-dot active"></div>
-          <div class="ob-dot active"></div>
-        </div>
-        <p class="fw-semibold small mb-2" style="color: #0D7377;">Pergunta 3 de 3</p>
-        <h2 class="fw-bold mb-2" style="font-size: 24px;">Qual é o seu principal objetivo?</h2>
-        <p class="text-secondary mb-4" style="font-size: 14px;">Conte o que você espera alcançar usando o CodeAssist.</p>
-        <textarea
-          class="form-control rounded-3 mb-4"
-          rows="4"
-          placeholder="Ex: Quero melhorar minhas habilidades em algoritmos e conseguir meu primeiro emprego como dev..."
-          [(ngModel)]="respostas.objetivo"
-          style="border: 1.5px solid #dee2e6; font-size: 14px; resize: none;"
-        ></textarea>
-        <button class="btn fw-bold text-white rounded-3 px-4 py-2"
-          style="background: #0D7377; border: none; font-size: 15px; width: fit-content;"
-          [disabled]="carregando"
-          (click)="finalizar()">
-          {{ carregando ? 'Salvando...' : 'Confirmar →' }}
-        </button>
-      }
+        @if (passo() === 3) {
+          <div class="ob-progress d-flex gap-2 mb-4">
+            <div class="ob-dot active"></div>
+            <div class="ob-dot active"></div>
+            <div class="ob-dot active"></div>
+          </div>
+          <p class="fw-semibold small mb-2" style="color: #0D7377;">Pergunta 3 de 3</p>
+          <h2 class="fw-bold mb-2" style="font-size: 24px;">{{ getPergunta(3) }}</h2>
+          <p class="text-secondary mb-4" style="font-size: 14px;">Conte o que você espera alcançar usando o CodeAssist.</p>
+          <textarea
+            class="form-control rounded-3 mb-4"
+            rows="4"
+            placeholder="Ex: Quero melhorar minhas habilidades em algoritmos e conseguir meu primeiro emprego como dev..."
+            [(ngModel)]="respostas.objetivo"
+            style="border: 1.5px solid #dee2e6; font-size: 14px; resize: none;">
+          </textarea>
+          <button class="btn fw-bold text-white rounded-3 px-4 py-2"
+            style="background: #0D7377; border: none; font-size: 15px; width: fit-content;"
+            [disabled]="carregando"
+            (click)="finalizar()">
+            {{ carregando ? 'Salvando...' : 'Confirmar →' }}
+          </button>
+        }
 
       }
 
       <!-- ===================== FLUXO MENTOR ===================== -->
       @if (ehMentor) {
 
-      @if (passo() === 1) {
-        <div class="ob-progress d-flex gap-2 mb-4">
-          <div class="ob-dot active"></div>
-          <div class="ob-dot"></div>
-          <div class="ob-dot"></div>
-        </div>
-        <p class="fw-semibold small mb-2" style="color: #0D7377;">Passo 1 de 3</p>
-        <h2 class="fw-bold mb-2" style="font-size: 24px;">Conte sobre sua experiência</h2>
-        <p class="text-secondary mb-4" style="font-size: 14px;">Essa descrição aparecerá no seu perfil de mentor para os clientes.</p>
-        <textarea
-          class="form-control rounded-3 mb-4"
-          rows="4"
-          placeholder="Ex: Especialista em Java e Spring Boot com 8 anos de experiência..."
-          [(ngModel)]="mentorDados.descricao"
-          style="border: 1.5px solid #dee2e6; font-size: 14px; resize: none;"
-        ></textarea>
-        <button class="btn fw-bold text-white rounded-3 px-4 py-2"
-          style="background: #0D7377; border: none; font-size: 15px; width: fit-content;"
-          [disabled]="!mentorDados.descricao"
-          (click)="passo.set(2)">
-          Continuar →
-        </button>
-      }
+        @if (passo() === 1) {
+          <div class="ob-progress d-flex gap-2 mb-4">
+            <div class="ob-dot active"></div>
+            <div class="ob-dot"></div>
+            <div class="ob-dot"></div>
+          </div>
+          <p class="fw-semibold small mb-2" style="color: #0D7377;">Passo 1 de 3</p>
+          <h2 class="fw-bold mb-2" style="font-size: 24px;">{{ getPergunta(4) }}</h2>
+          <p class="text-secondary mb-4" style="font-size: 14px;">Essa descrição aparecerá no seu perfil de mentor para os clientes.</p>
+          <textarea
+            class="form-control rounded-3 mb-4"
+            rows="4"
+            placeholder="Ex: Especialista em Java e Spring Boot com 8 anos de experiência..."
+            [(ngModel)]="mentorDados.descricao"
+            style="border: 1.5px solid #dee2e6; font-size: 14px; resize: none;">
+          </textarea>
+          <button class="btn fw-bold text-white rounded-3 px-4 py-2"
+            style="background: #0D7377; border: none; font-size: 15px; width: fit-content;"
+            [disabled]="!mentorDados.descricao"
+            (click)="passo.set(2)">
+            Continuar →
+          </button>
+        }
 
-      @if (passo() === 2) {
-        <div class="ob-progress d-flex gap-2 mb-4">
-          <div class="ob-dot active"></div>
-          <div class="ob-dot active"></div>
-          <div class="ob-dot"></div>
-        </div>
-        <p class="fw-semibold small mb-2" style="color: #0D7377;">Passo 2 de 3</p>
-        <h2 class="fw-bold mb-2" style="font-size: 24px;">Quais tecnologias você domina?</h2>
-        <p class="text-secondary mb-4" style="font-size: 14px;">Selecione as tecnologias com as quais você pode mentorar.</p>
-        <div class="d-flex flex-wrap gap-2 mb-4" style="max-height: 220px; overflow-y: auto;">
-          @for (tecnologia of tecnologiasDisponiveis; track tecnologia.id) {
-            <button
-              type="button"
-              class="ob-option"
-              style="flex: 0 0 auto; padding: 8px 14px;"
-              [class.ob-option-selecionada]="tecnologiaSelecionada(tecnologia.id)"
-              (click)="alternarTecnologia(tecnologia.id)">
-              {{ tecnologia.nome }}
-            </button>
-          }
-        </div>
-        <button class="btn fw-bold text-white rounded-3 px-4 py-2"
-          style="background: #0D7377; border: none; font-size: 15px; width: fit-content;"
-          (click)="avancarParaPrecoHora()">
-          Continuar →
-        </button>
-      }
+        @if (passo() === 2) {
+          <div class="ob-progress d-flex gap-2 mb-4">
+            <div class="ob-dot active"></div>
+            <div class="ob-dot active"></div>
+            <div class="ob-dot"></div>
+          </div>
+          <p class="fw-semibold small mb-2" style="color: #0D7377;">Passo 2 de 3</p>
+          <h2 class="fw-bold mb-2" style="font-size: 24px;">{{ getPergunta(5) }}</h2>
+          <p class="text-secondary mb-4" style="font-size: 14px;">Selecione as tecnologias com as quais você pode mentorar.</p>
+          <div class="d-flex flex-wrap gap-2 mb-4" style="max-height: 220px; overflow-y: auto;">
+            @for (tecnologia of tecnologiasDisponiveis; track tecnologia.id) {
+              <button
+                type="button"
+                class="ob-option"
+                style="flex: 0 0 auto; padding: 8px 14px;"
+                [class.ob-option-selecionada]="tecnologiaSelecionada(tecnologia.id)"
+                (click)="alternarTecnologia(tecnologia.id)">
+                {{ tecnologia.nome }}
+              </button>
+            }
+          </div>
+          <button class="btn fw-bold text-white rounded-3 px-4 py-2"
+            style="background: #0D7377; border: none; font-size: 15px; width: fit-content;"
+            (click)="avancarParaPrecoHora()">
+            Continuar →
+          </button>
+        }
 
-      @if (passo() === 3) {
-        <div class="ob-progress d-flex gap-2 mb-4">
-          <div class="ob-dot active"></div>
-          <div class="ob-dot active"></div>
-          <div class="ob-dot active"></div>
-        </div>
-        <p class="fw-semibold small mb-2" style="color: #0D7377;">Passo 3 de 3</p>
-        <h2 class="fw-bold mb-2" style="font-size: 24px;">Qual o valor da sua hora de mentoria?</h2>
-        <p class="text-secondary mb-4" style="font-size: 14px;">Você poderá alterar esse valor depois no seu perfil.</p>
-        <div class="input-group rounded-3 mb-4" style="border: 1.5px solid #dee2e6; max-width: 220px;">
-          <span class="input-group-text bg-white border-0 text-muted">R$</span>
-          <input
-            type="number"
-            min="0"
-            step="5"
-            class="form-control border-0 ps-0 shadow-none"
-            placeholder="120"
-            [(ngModel)]="mentorDados.precoHora"
-          >
-          <span class="input-group-text bg-white border-0 text-muted">/h</span>
-        </div>
-        <button class="btn fw-bold text-white rounded-3 px-4 py-2"
-          style="background: #0D7377; border: none; font-size: 15px; width: fit-content;"
-          [disabled]="carregando || !mentorDados.precoHora"
-          (click)="finalizarOnboardingMentor()">
-          {{ carregando ? 'Salvando...' : 'Confirmar →' }}
-        </button>
-      }
+        @if (passo() === 3) {
+          <div class="ob-progress d-flex gap-2 mb-4">
+            <div class="ob-dot active"></div>
+            <div class="ob-dot active"></div>
+            <div class="ob-dot active"></div>
+          </div>
+          <p class="fw-semibold small mb-2" style="color: #0D7377;">Passo 3 de 3</p>
+          <h2 class="fw-bold mb-2" style="font-size: 24px;">{{ getPergunta(6) }}</h2>
+          <p class="text-secondary mb-4" style="font-size: 14px;">Você poderá alterar esse valor depois no seu perfil.</p>
+          <div class="input-group rounded-3 mb-4" style="border: 1.5px solid #dee2e6; max-width: 220px;">
+            <span class="input-group-text bg-white border-0 text-muted">R$</span>
+            <input
+              type="number"
+              min="0"
+              step="5"
+              class="form-control border-0 ps-0 shadow-none"
+              placeholder="120"
+              [(ngModel)]="mentorDados.precoHora">
+            <span class="input-group-text bg-white border-0 text-muted">/h</span>
+          </div>
+          <button class="btn fw-bold text-white rounded-3 px-4 py-2"
+            style="background: #0D7377; border: none; font-size: 15px; width: fit-content;"
+            [disabled]="carregando || !mentorDados.precoHora"
+            (click)="finalizarOnboardingMentor()">
+            {{ carregando ? 'Salvando...' : 'Confirmar →' }}
+          </button>
+        }
 
       }
 

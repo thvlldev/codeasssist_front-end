@@ -14,7 +14,7 @@ import { Tecnologia } from '../../model/tecnologia.model';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, CurrencyPipe, DatePipe, RouterModule, FormsModule],
+  imports: [CommonModule, CurrencyPipe, RouterModule, FormsModule],
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.css']
 })

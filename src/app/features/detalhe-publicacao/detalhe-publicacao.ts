@@ -50,16 +50,20 @@ export class DetalhePublicacaoComponent implements OnInit {
   publicacao!: Publicacao;
   tecnologias: Tecnologia[] = [];
 
-  ehMentor: boolean = false;
+  ehMentor = false;
   usuarioLogadoId!: number;
-  carregando: boolean = true;
+  carregando = true;
+  processando = false;
 
-  novaPropostaConteudo: string = '';
-  jaRespondeu: boolean = false;
+  // Mentor
+  novaPropostaConteudo = '';
+  jaRespondeu = false;
   propostaEnviadaPorMim?: RespostaPublicacao;
 
+  // Cliente
   propostasRecebidas: RespostaComMentor[] = [];
 
+  // Modal avaliação
   modalAvaliacaoAberto = signal(false);
   propostaSendoAvaliada = signal<RespostaComMentor | null>(null);
   notaSelecionada = signal(0);
@@ -70,16 +74,61 @@ export class DetalhePublicacaoComponent implements OnInit {
 
   ngOnInit(): void {
     this.usuarioLogadoId = this.authService.getUsuarioId() ?? 0;
-    const papel = this.authService.getPapelAtivo();
-    this.ehMentor = papel === 1;
+    this.ehMentor = this.authService.getPapelAtivo() === 1;
 
     this.route.params.subscribe(params => {
       this.publicacaoId = +params['id'];
-      if (this.publicacaoId) {
-        this.carregarDadosCompletos();
-      }
+      if (this.publicacaoId) this.carregarDadosCompletos();
     });
   }
+
+  // ── Labels de status ──────────────────────────────────────────────────
+
+  getLabelStatusPublicacao(status: number): string {
+    switch (status) {
+      case 1: return 'Em aberto';
+      case 2: return 'Em andamento';
+      case 3: return 'Finalizada';
+      default: return 'Desconhecido';
+    }
+  }
+
+  getClasseStatusPublicacao(status: number): string {
+    switch (status) {
+      case 1: return 'bg-success-subtle text-success';
+      case 2: return 'bg-warning-subtle text-warning';
+      case 3: return 'bg-secondary-subtle text-secondary';
+      default: return 'bg-light text-muted';
+    }
+  }
+
+  // ── Permissões baseadas em status ─────────────────────────────────────
+
+  get podeEnviarProposta(): boolean {
+    return this.ehMentor && this.publicacao?.status === 1 && !this.jaRespondeu;
+  }
+
+  get podeAbrirChat(): boolean {
+    // Cliente: publicacao em andamento (2) ou finalizada (3)
+    // Mentor: sua resposta foi aceita (status 2) e publicacao em andamento (2) ou finalizada (3)
+    if (!this.publicacao) return false;
+    if (this.ehMentor) {
+      return (this.publicacao.status === 2 || this.publicacao.status === 3)
+        && this.propostaEnviadaPorMim?.status === 2;
+    }
+    return this.publicacao.status === 2 || this.publicacao.status === 3;
+  }
+
+  get podeAvaliar(): boolean {
+    // Só quando publicacao finalizada (3)
+    return !this.ehMentor && this.publicacao?.status === 3;
+  }
+
+  get chatFinalizado(): boolean {
+    return this.publicacao?.status === 3;
+  }
+
+  // ── Carregamento ──────────────────────────────────────────────────────
 
   carregarDadosCompletos(): void {
     this.carregando = true;
@@ -99,15 +148,18 @@ export class DetalhePublicacaoComponent implements OnInit {
           .map(r => r.tecnologiaId);
         this.tecnologias = todasTechs.filter(t => idsRelacionados.includes(t.id));
 
+        // Filtra soft deletes
+        const respostasAtivas = respostas.filter(r => r.status !== 0);
+
         if (this.ehMentor) {
-          this.propostaEnviadaPorMim = respostas.find(r => r.usuarioId === this.usuarioLogadoId);
+          this.propostaEnviadaPorMim = respostasAtivas.find(r => r.usuarioId === this.usuarioLogadoId);
           this.jaRespondeu = !!this.propostaEnviadaPorMim;
           this.carregando = false;
           this.cdr.detectChanges();
           return;
         }
 
-        if (respostas.length === 0) {
+        if (respostasAtivas.length === 0) {
           this.propostasRecebidas = [];
           this.carregando = false;
           this.cdr.detectChanges();
@@ -115,7 +167,7 @@ export class DetalhePublicacaoComponent implements OnInit {
         }
 
         forkJoin([
-          forkJoin(respostas.map(resp =>
+          forkJoin(respostasAtivas.map(resp =>
             this.http.get<any>(`${this.API_BASE}/usuarios/${resp.usuarioId}`).pipe(
               map(user => ({ ...resp, nomeMentor: user.nome, emailMentor: user.email, mentorUsuarioId: user.id }))
             )
@@ -135,7 +187,7 @@ export class DetalhePublicacaoComponent implements OnInit {
             this.cdr.detectChanges();
           },
           error: () => {
-            this.propostasRecebidas = respostas.map(r => ({ ...r, nomeMentor: 'Mentor Parceiro' }));
+            this.propostasRecebidas = respostasAtivas.map(r => ({ ...r, nomeMentor: 'Mentor Parceiro' }));
             this.carregando = false;
             this.cdr.detectChanges();
           }
@@ -148,30 +200,98 @@ export class DetalhePublicacaoComponent implements OnInit {
     });
   }
 
+  // ── Ações do mentor ───────────────────────────────────────────────────
+
   enviarProposta(): void {
-    if (!this.novaPropostaConteudo.trim()) {
-      alert('Por favor, descreva a sua proposta antes de enviar.');
-      return;
-    }
+    if (!this.novaPropostaConteudo.trim()) return;
 
-    const payloadProposta: any = {
+    this.respostaPublicacaoService.criar({
       conteudo: this.novaPropostaConteudo,
-      usuarioId: Number(this.usuarioLogadoId),
-      publicacaoId: Number(this.publicacaoId),
+      usuarioId: this.usuarioLogadoId,
+      publicacaoId: this.publicacaoId,
       status: 1
-    };
-
-    this.respostaPublicacaoService.criar(payloadProposta).subscribe({
+    }).subscribe({
       next: () => {
-        alert('Sua proposta de mentoria foi enviada com sucesso!');
         this.novaPropostaConteudo = '';
         this.carregarDadosCompletos();
       },
+      error: () => {}
+    });
+  }
+
+  // ── Ações do cliente ──────────────────────────────────────────────────
+
+  aceitarProposta(proposta: RespostaComMentor): void {
+    if (this.processando) return;
+    this.processando = true;
+    this.cdr.detectChanges();
+
+    // 1. Aceita a resposta escolhida (status 2)
+    this.respostaPublicacaoService.atualizar(proposta.id, { ...proposta, status: 2 }).subscribe({
+      next: () => {
+        // 2. Rejeita todas as outras respostas pendentes (status 3)
+        const outrasRespostas = this.propostasRecebidas.filter(
+          r => r.id !== proposta.id && r.status === 1
+        );
+
+        const rejeicoes = outrasRespostas.map(r =>
+          this.respostaPublicacaoService.atualizar(r.id, { ...r, status: 3 })
+        );
+
+        const atualizarPublicacao = () => {
+          // 3. Muda status da publicacao para em andamento (2)
+          this.publicacaoService.atualizar(this.publicacaoId, {
+            ...this.publicacao, status: 2
+          }).subscribe({
+            next: () => {
+              this.processando = false;
+              // 4. Navega pro chat
+              this.router.navigate(['/app/chat', proposta.id]);
+            },
+            error: () => {
+              this.processando = false;
+              this.cdr.detectChanges();
+            }
+          });
+        };
+
+        if (rejeicoes.length > 0) {
+          forkJoin(rejeicoes).subscribe({
+            next: () => atualizarPublicacao(),
+            error: () => atualizarPublicacao() // continua mesmo se rejeição falhar
+          });
+        } else {
+          atualizarPublicacao();
+        }
+      },
       error: () => {
-        alert('Não foi possível enviar a proposta.');
+        this.processando = false;
+        this.cdr.detectChanges();
       }
     });
   }
+
+  finalizarChat(proposta: RespostaComMentor): void {
+    if (this.processando) return;
+    this.processando = true;
+    this.cdr.detectChanges();
+
+    // Muda publicacao para finalizada (3)
+    this.publicacaoService.atualizar(this.publicacaoId, {
+      ...this.publicacao, status: 3
+    }).subscribe({
+      next: () => {
+        this.processando = false;
+        this.carregarDadosCompletos();
+      },
+      error: () => {
+        this.processando = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  // ── Modal avaliação ───────────────────────────────────────────────────
 
   abrirModalAvaliacao(proposta: RespostaComMentor): void {
     this.propostaSendoAvaliada.set(proposta);
@@ -186,22 +306,16 @@ export class DetalhePublicacaoComponent implements OnInit {
     this.modalAvaliacaoAberto.set(false);
   }
 
-  selecionarNota(nota: number): void {
-    this.notaSelecionada.set(nota);
-  }
-
-  hoverNota(nota: number): void {
-    this.notaHover.set(nota);
-  }
-
-  limparHover(): void {
-    this.notaHover.set(0);
-  }
+  selecionarNota(nota: number): void { this.notaSelecionada.set(nota); }
+  hoverNota(nota: number): void { this.notaHover.set(nota); }
+  limparHover(): void { this.notaHover.set(0); }
 
   estrelaAtiva(index: number): boolean {
-    const referencia = this.notaHover() > 0 ? this.notaHover() : this.notaSelecionada();
-    return index <= referencia;
+    const ref = this.notaHover() > 0 ? this.notaHover() : this.notaSelecionada();
+    return index <= ref;
   }
+
+  estrelas(): number[] { return [1, 2, 3, 4, 5]; }
 
   salvarAvaliacao(): void {
     if (this.notaSelecionada() === 0) {
@@ -217,16 +331,14 @@ export class DetalhePublicacaoComponent implements OnInit {
     this.salvandoAvaliacao.set(true);
     this.erroAvaliacao.set('');
 
-    const novaAvaliacao = {
+    this.avaliacaoService.criar({
       clienteUsuarioId: this.usuarioLogadoId,
       mentorUsuarioId: proposta.mentorUsuarioId!,
       valor: this.notaSelecionada(),
       comentario: this.comentarioAvaliacao(),
       publicacaoId: this.publicacaoId,
       status: 1
-    };
-
-    this.avaliacaoService.criar(novaAvaliacao).subscribe({
+    }).subscribe({
       next: () => {
         this.avaliacaoService.listarPorMentor(proposta.mentorUsuarioId!).subscribe({
           next: (avaliacoes) => {
@@ -237,8 +349,7 @@ export class DetalhePublicacaoComponent implements OnInit {
               next: (mentor) => {
                 if (mentor) {
                   this.mentorService.atualizar(proposta.mentorUsuarioId!, {
-                    ...mentor,
-                    mediaAvaliacao: media
+                    ...mentor, mediaAvaliacao: media
                   }).subscribe({
                     next: () => {
                       this.salvandoAvaliacao.set(false);
@@ -269,9 +380,5 @@ export class DetalhePublicacaoComponent implements OnInit {
         this.erroAvaliacao.set('Erro ao salvar avaliação. Tente novamente.');
       }
     });
-  }
-
-  estrelas(): number[] {
-    return [1, 2, 3, 4, 5];
   }
 }

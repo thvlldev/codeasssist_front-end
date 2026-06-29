@@ -14,13 +14,18 @@
       <!-- Card da publicação -->
       <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
         <div class="d-flex justify-content-between align-items-start mb-3">
-          <span class="badge rounded-pill bg-success-subtle text-success px-3 py-2">Em aberto</span>
-          <small class="text-muted"><i class="bi bi-calendar3 me-1"></i>{{ publicacao.dataCriacao | date:'dd/MM/yyyy' }}</small>
+          <span class="badge rounded-pill px-3 py-2"
+                [ngClass]="getClasseStatusPublicacao(publicacao.status)">
+            {{ getLabelStatusPublicacao(publicacao.status) }}
+          </span>
+          <small class="text-muted">
+            <i class="bi bi-calendar3 me-1"></i>{{ publicacao.dataCriacao | date:'dd/MM/yyyy' }}
+          </small>
         </div>
         <h3 class="text-dark fw-bold mb-3">{{ publicacao.titulo }}</h3>
         <p class="text-secondary lh-lg mb-4" style="white-space: pre-wrap;">{{ publicacao.conteudo }}</p>
         <div class="mb-4 flex-wrap d-flex gap-1">
-          <span *ngFor="let tech of tecnologias" class="badge tag-tech px-2 py-1.5 rounded">
+          <span *ngFor="let tech of tecnologias" class="badge tag-tech px-2 py-1 rounded">
             #{{ tech.nome }}
           </span>
         </div>
@@ -32,9 +37,11 @@
         </div>
       </div>
 
-      <!-- Área do Mentor -->
+      <!-- ==================== ÁREA DO MENTOR ==================== -->
       <div *ngIf="ehMentor">
-        <div *ngIf="!jaRespondeu" class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+
+        <!-- Ainda não respondeu e publicação em aberto -->
+        <div *ngIf="podeEnviarProposta" class="card border-0 shadow-sm rounded-4 p-4 bg-white">
           <h4 class="fw-bold text-dark mb-3">Enviar sua Proposta de Mentoria</h4>
           <p class="text-muted small mb-3">
             Explique como você pretende ajudar o cliente a resolver esse problema.
@@ -52,34 +59,68 @@
           </div>
         </div>
 
-        <div *ngIf="jaRespondeu" class="card border-0 shadow-sm rounded-4 p-4 bg-light border-start border-success border-4">
-          <div class="d-flex align-items-center gap-2 text-success mb-2">
-            <i class="bi bi-check-circle-fill fs-5"></i>
-            <h5 class="fw-bold m-0">Você já enviou uma proposta para esta solicitação!</h5>
+        <!-- Já respondeu -->
+        <div *ngIf="jaRespondeu" class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <i class="bi bi-check-circle-fill text-success fs-5"></i>
+            <h5 class="fw-bold m-0">Sua proposta</h5>
           </div>
-          <p class="text-secondary m-0 mt-2 bg-white p-3 rounded-3 border">
+          <p class="text-secondary m-0 bg-light p-3 rounded-3 border">
             "{{ propostaEnviadaPorMim?.conteudo }}"
           </p>
+
+          <!-- Status da proposta -->
+          <div class="mt-3 d-flex align-items-center gap-2">
+            <span class="badge rounded-pill px-3 py-2"
+                  [ngClass]="{
+                    'bg-warning-subtle text-warning': propostaEnviadaPorMim?.status === 1,
+                    'bg-success-subtle text-success': propostaEnviadaPorMim?.status === 2,
+                    'bg-danger-subtle text-danger': propostaEnviadaPorMim?.status === 3
+                  }">
+              {{ propostaEnviadaPorMim?.status === 1 ? 'Aguardando resposta' :
+                 propostaEnviadaPorMim?.status === 2 ? 'Aceita' : 'Recusada' }}
+            </span>
+          </div>
+
+          <!-- Botão chat se proposta aceita -->
+          <div *ngIf="podeAbrirChat" class="mt-3 d-flex justify-content-end">
+            <a [routerLink]="['/app/chat', propostaEnviadaPorMim?.id]"
+               class="btn rounded-pill px-4"
+               [ngClass]="chatFinalizado ? 'btn-outline-secondary' : 'btn-verde'">
+              <i class="bi bi-chat-dots me-1"></i>
+              {{ chatFinalizado ? 'Ver conversa' : 'Abrir Chat' }}
+            </a>
+          </div>
+        </div>
+
+        <!-- Publicação não está mais aberta e mentor não respondeu -->
+        <div *ngIf="!podeEnviarProposta && !jaRespondeu"
+             class="card border-0 shadow-sm rounded-4 p-4 bg-light text-center">
+          <i class="bi bi-lock text-muted fs-2"></i>
+          <p class="text-muted mt-2 mb-0">Esta publicação não está mais aceitando propostas.</p>
         </div>
       </div>
 
-      <!-- Área do Cliente -->
+      <!-- ==================== ÁREA DO CLIENTE ==================== -->
       <div *ngIf="!ehMentor">
         <h4 class="fw-bold text-dark mb-3">
           <i class="bi bi-person-workspace me-2"></i>Propostas de Mentores Recebidas
         </h4>
 
-        <div *ngIf="propostasRecebidas.length === 0" class="text-center p-5 bg-white rounded-4 shadow-sm border">
+        <div *ngIf="propostasRecebidas.length === 0"
+             class="text-center p-5 bg-white rounded-4 shadow-sm border">
           <i class="bi bi-inbox text-muted display-4"></i>
           <p class="text-secondary mt-3 m-0">Nenhuma proposta enviada até o momento.</p>
         </div>
 
         <div class="d-flex flex-column gap-3" *ngIf="propostasRecebidas.length > 0">
           <div class="card border-0 shadow-sm rounded-4 p-4 bg-white"
-               *ngFor="let proposta of propostasRecebidas">
+               *ngFor="let proposta of propostasRecebidas"
+               [class.opacity-50]="proposta.status === 3">
+
             <div class="d-flex justify-content-between align-items-center mb-3">
               <div class="d-flex align-items-center gap-2">
-                <div class="bg-verde-subtle text-verde rounded-circle d-flex align-items-center justify-content-center"
+                <div class="bg-verde-claro text-verde rounded-circle d-flex align-items-center justify-content-center"
                      style="width: 40px; height: 40px;">
                   <i class="bi bi-person-fill fs-5"></i>
                 </div>
@@ -88,7 +129,17 @@
                   <small class="text-muted">{{ proposta.emailMentor }}</small>
                 </div>
               </div>
-              <span class="badge bg-success rounded-pill px-3 small">Disponível</span>
+
+              <!-- Badge status da resposta -->
+              <span class="badge rounded-pill px-3 py-2"
+                    [ngClass]="{
+                      'bg-success-subtle text-success': proposta.status === 1,
+                      'bg-warning-subtle text-warning': proposta.status === 2,
+                      'bg-danger-subtle text-danger': proposta.status === 3
+                    }">
+                {{ proposta.status === 1 ? 'Disponível' :
+                   proposta.status === 2 ? 'Aceita' : 'Recusada' }}
+              </span>
             </div>
 
             <p class="text-secondary bg-light p-3 rounded-3 m-0 border" style="white-space: pre-wrap;">
@@ -96,19 +147,44 @@
             </p>
 
             <div class="d-flex justify-content-end gap-2 mt-3">
-              <button class="btn btn-outline-verde btn-sm rounded-pill px-4">
-                <i class="bi bi-chat-dots me-1"></i>Entrar em Contato
+
+              <!-- Aceitar proposta — só quando publicacao em aberto (1) e resposta pendente (1) -->
+              <button *ngIf="publicacao.status === 1 && proposta.status === 1"
+                      class="btn btn-verde btn-sm rounded-pill px-4"
+                      [disabled]="processando"
+                      (click)="aceitarProposta(proposta)">
+                <span *ngIf="processando" class="spinner-border spinner-border-sm me-1"></span>
+                <i *ngIf="!processando" class="bi bi-check-lg me-1"></i>
+                Aceitar e Iniciar Chat
               </button>
 
-              <!-- Botão avaliar -->
-              <button *ngIf="!proposta.jaAvaliou"
+              <!-- Abrir chat — proposta aceita, publicacao em andamento ou finalizada -->
+              <a *ngIf="proposta.status === 2 && (publicacao.status === 2 || publicacao.status === 3)"
+                 [routerLink]="['/app/chat', proposta.id]"
+                 class="btn btn-sm rounded-pill px-4"
+                 [ngClass]="chatFinalizado ? 'btn-outline-secondary' : 'btn-outline-verde'">
+                <i class="bi bi-chat-dots me-1"></i>
+                {{ chatFinalizado ? 'Ver conversa' : 'Abrir Chat' }}
+              </a>
+
+              <!-- Finalizar chat — publicacao em andamento (2), só cliente -->
+              <button *ngIf="proposta.status === 2 && publicacao.status === 2"
+                      class="btn btn-sm rounded-pill px-4 btn-outline-secondary"
+                      [disabled]="processando"
+                      (click)="finalizarChat(proposta)">
+                <i class="bi bi-check2-all me-1"></i>
+                Finalizar
+              </button>
+
+              <!-- Avaliar — só quando finalizada (3) e ainda não avaliou -->
+              <button *ngIf="podeAvaliar && proposta.status === 2 && !proposta.jaAvaliou"
                       class="btn btn-sm rounded-pill px-4 text-white"
                       style="background-color: #f59e0b;"
                       (click)="abrirModalAvaliacao(proposta)">
                 <i class="bi bi-star-fill me-1"></i>Avaliar Mentor
               </button>
 
-              <span *ngIf="proposta.jaAvaliou"
+              <span *ngIf="podeAvaliar && proposta.status === 2 && proposta.jaAvaliou"
                     class="badge bg-success-subtle text-success px-3 py-2 rounded-pill align-self-center">
                 <i class="bi bi-check-circle me-1"></i>Avaliado
               </span>
@@ -130,17 +206,13 @@
 <!-- ── MODAL DE AVALIAÇÃO ─────────────────────────────────────────────────── -->
 <div *ngIf="modalAvaliacaoAberto()"
      style="position: fixed; inset: 0; z-index: 1050; display: flex; align-items: center; justify-content: center;">
-
-  <!-- Backdrop -->
   <div (click)="fecharModalAvaliacao()"
        style="position: absolute; inset: 0; background: rgba(0,0,0,0.5);"></div>
 
-  <!-- Caixa -->
   <div style="position: relative; z-index: 1; width: 100%; max-width: 480px;
               background: #fff; border-radius: 12px;
               box-shadow: 0 8px 32px rgba(0,0,0,0.18); margin: 16px;">
 
-    <!-- Header -->
     <div class="d-flex align-items-center justify-content-between px-4 py-3 rounded-top"
          style="background-color: #f0f7f7; border-bottom: 1px solid #e0f2f1;">
       <h5 class="mb-0 fw-bold" style="color: #00796b;">
@@ -149,12 +221,10 @@
       <button type="button" class="btn-close" (click)="fecharModalAvaliacao()"></button>
     </div>
 
-    <!-- Body -->
     <div class="px-4 py-4">
       <p class="text-muted small mb-1">Avaliando:</p>
       <p class="fw-bold text-dark mb-4">{{ propostaSendoAvaliada()?.nomeMentor }}</p>
 
-      <!-- Estrelas -->
       <p class="text-muted small mb-2">Nota <span class="text-danger">*</span></p>
       <div class="d-flex gap-2 mb-4">
         <i *ngFor="let n of estrelas()"
@@ -169,7 +239,6 @@
         </i>
       </div>
 
-      <!-- Comentário -->
       <p class="text-muted small mb-2">Comentário <span class="text-danger">*</span></p>
       <textarea class="form-control mb-3"
                 rows="3"
@@ -183,7 +252,6 @@
       </div>
     </div>
 
-    <!-- Footer -->
     <div class="px-4 py-3 d-flex justify-content-end gap-2"
          style="border-top: 1px solid #e0f2f1;">
       <button type="button"
@@ -201,6 +269,5 @@
         {{ salvandoAvaliacao() ? 'Salvando...' : 'Enviar Avaliação' }}
       </button>
     </div>
-
   </div>
 </div>

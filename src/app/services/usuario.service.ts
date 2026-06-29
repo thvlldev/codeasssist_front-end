@@ -20,4 +20,7 @@ export class UsuarioService {
   criar(usuario: Partial<Usuario>): Observable<Usuario> {
     return this.http.post<Usuario>(`${this.API_BASE}/usuarios`, usuario);
   }
+  atualizar(id: number, usuario: Partial<Usuario>): Observable<Usuario> {
+  return this.http.put<Usuario>(`${this.API_BASE}/usuarios/${id}`, usuario);
+}
 }

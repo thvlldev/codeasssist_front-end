@@ -22,4 +22,8 @@ export class RespostaPublicacaoService {
   criar(resposta: Partial<RespostaPublicacao>): Observable<RespostaPublicacao> {
     return this.http.post<RespostaPublicacao>(`${this.API_BASE}/respostas-publicacoes`, resposta);
   }
+
+  atualizar(id: number, resposta: Partial<RespostaPublicacao>): Observable<RespostaPublicacao> {
+    return this.http.put<RespostaPublicacao>(`${this.API_BASE}/respostas-publicacoes/${id}`, resposta);
+  }
 }

@@ -1,19 +1,16 @@
-
 import { Routes } from '@angular/router';
 import { LandingPageComponent } from './features/landing-page/landing-page';
 import { DashboardComponent } from './features/dashboard/dashboard';
 import { OnboardingComponent } from './features/onboarding/onboarding';
 import { PublicacoesComponent } from './features/publicacao/publicacao';
-import { DetalhePublicacaoComponent } from './features/detalhe-publicacao/detalhe-publicacao'; // Importado aqui!
+import { DetalhePublicacaoComponent } from './features/detalhe-publicacao/detalhe-publicacao';
 import { ApiTesteComponent } from './testa-api/testa-api';
 import { Sidenav } from './shared/sidenav/sidenav';
 import { NovaPublicacaoComponent } from './features/nova-publicacao/nova-publicacao';
 
 export const routes: Routes = [
-  // Rota inicial pública
   { path: 'landingPage', component: LandingPageComponent },
 
-  // Telas internas com suporte ao Sidenav
   {
     path: 'app',
     component: Sidenav,
@@ -21,22 +18,15 @@ export const routes: Routes = [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: DashboardComponent },
       { path: 'publicacoes', component: PublicacoesComponent },
-
-      // ADICIONADA: Rota dinâmica capturando o ID para abrir os detalhes
       { path: 'publicacoes/:id', component: DetalhePublicacaoComponent },
-
       { path: 'nova-publicacao', component: NovaPublicacaoComponent },
-      {
-        path: 'perfil',
-        loadComponent: () => import('./features/perfil/perfil').then(m => m.PerfilComponent)
-      },
+      {path: 'perfil',loadComponent: () => import('./features/perfil/perfil').then(m => m.PerfilComponent)},
+      {path: 'chat/:id',loadComponent: () => import('./features/chat/chat').then(m => m.ChatComponent)}
     ]
   },
 
-  // Rotas isoladas para testes ou fluxos iniciais
   { path: 'teste', component: ApiTesteComponent },
   { path: 'onboarding', component: OnboardingComponent },
 
-  // Wildcard (Qualquer rota inválida joga para a Landing Page)
   { path: '**', redirectTo: 'landingPage' }
 ];

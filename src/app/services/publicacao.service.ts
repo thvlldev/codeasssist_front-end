@@ -26,4 +26,8 @@ export class PublicacaoService {
   criar(publicacao: Partial<Publicacao>): Observable<Publicacao> {
     return this.http.post<Publicacao>(`${this.API_BASE}/publicacoes`, publicacao);
   }
+
+  atualizar(id: number, publicacao: Partial<Publicacao>): Observable<Publicacao> {
+    return this.http.put<Publicacao>(`${this.API_BASE}/publicacoes/${id}`, publicacao);
+  }
 }
