@@ -7,6 +7,7 @@ import { DetalhePublicacaoComponent } from './features/detalhe-publicacao/detalh
 import { ApiTesteComponent } from './testa-api/testa-api';
 import { Sidenav } from './shared/sidenav/sidenav';
 import { NovaPublicacaoComponent } from './features/nova-publicacao/nova-publicacao';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   { path: 'landingPage', component: LandingPageComponent },
@@ -14,19 +15,26 @@ export const routes: Routes = [
   {
     path: 'app',
     component: Sidenav,
+    canActivate: [authGuard],
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: DashboardComponent },
       { path: 'publicacoes', component: PublicacoesComponent },
       { path: 'publicacoes/:id', component: DetalhePublicacaoComponent },
       { path: 'nova-publicacao', component: NovaPublicacaoComponent },
-      {path: 'perfil',loadComponent: () => import('./features/perfil/perfil').then(m => m.PerfilComponent)},
-      {path: 'chat/:id',loadComponent: () => import('./features/chat/chat').then(m => m.ChatComponent)}
+      {
+        path: 'perfil',
+        loadComponent: () => import('./features/perfil/perfil').then(m => m.PerfilComponent)
+      },
+      {
+        path: 'chat/:id',
+        loadComponent: () => import('./features/chat/chat').then(m => m.ChatComponent)
+      }
     ]
   },
 
   { path: 'teste', component: ApiTesteComponent },
   { path: 'onboarding', component: OnboardingComponent },
-
+  { path: '', redirectTo: 'landingPage', pathMatch: 'full' },
   { path: '**', redirectTo: 'landingPage' }
 ];
