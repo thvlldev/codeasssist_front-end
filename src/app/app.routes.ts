@@ -4,7 +4,6 @@ import { DashboardComponent } from './features/dashboard/dashboard';
 import { OnboardingComponent } from './features/onboarding/onboarding';
 import { PublicacoesComponent } from './features/publicacao/publicacao';
 import { DetalhePublicacaoComponent } from './features/detalhe-publicacao/detalhe-publicacao';
-import { ApiTesteComponent } from './testa-api/testa-api';
 import { Sidenav } from './shared/sidenav/sidenav';
 import { NovaPublicacaoComponent } from './features/nova-publicacao/nova-publicacao';
 import { authGuard } from './core/guards/auth.guard';
@@ -32,8 +31,6 @@ export const routes: Routes = [
       }
     ]
   },
-
-  { path: 'teste', component: ApiTesteComponent },
   { path: 'onboarding', component: OnboardingComponent },
   { path: '', redirectTo: 'landingPage', pathMatch: 'full' },
   { path: '**', redirectTo: 'landingPage' }
