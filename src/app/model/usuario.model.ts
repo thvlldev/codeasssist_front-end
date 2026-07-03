@@ -3,7 +3,7 @@ export interface Usuario {
   nome: string;
   email: string;
   senha: string;
-  tipoUsuario: number | null; // confirmado que pode vir null (ex: id 7, 8, 9...)
+  tipoUsuario: number | null; 
   dataCadastro: string;
   status: number;
 }

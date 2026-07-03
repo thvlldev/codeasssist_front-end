@@ -21,14 +21,8 @@ export const routes: Routes = [
       { path: 'publicacoes', component: PublicacoesComponent },
       { path: 'publicacoes/:id', component: DetalhePublicacaoComponent },
       { path: 'nova-publicacao', component: NovaPublicacaoComponent },
-      {
-        path: 'perfil',
-        loadComponent: () => import('./features/perfil/perfil').then(m => m.PerfilComponent)
-      },
-      {
-        path: 'chat/:id',
-        loadComponent: () => import('./features/chat/chat').then(m => m.ChatComponent)
-      }
+      {path: 'perfil',loadComponent: () => import('./features/perfil/perfil').then(m => m.PerfilComponent)},// lazy loading: o código do PerfilComponent só é baixado quando o usuário navega até /app/perfil
+      {path: 'chat/:id',loadComponent: () => import('./features/chat/chat').then(m => m.ChatComponent)} // lazy loading + parâmetro dinâmico: o :id identifica a conversa/resposta a ser exibida
     ]
   },
   { path: 'onboarding', component: OnboardingComponent },

@@ -15,7 +15,7 @@ export class UsuarioTecnologiaService {
 
   listarPorUsuario(usuarioId: number): Observable<UsuarioTecnologia[]> {
     return this.listarTodas().pipe(
-      map(relacoes => relacoes.filter(r => r.usuarioId === usuarioId))
+      map(relacoes => relacoes.filter(r => r.usuarioId === usuarioId))// recebe o array completo e filtra ate ter o array de tecnologias só do usuario
     );
   }
 
