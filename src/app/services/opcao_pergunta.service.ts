@@ -15,7 +15,7 @@ export class OpcaoPerguntaService {
 
   listarPorPergunta(perguntaCadastroId: number): Observable<OpcaoPergunta[]> {
     return this.listarTodas().pipe(
-      map(opcoes => opcoes.filter(o => o.perguntaCadastroId === perguntaCadastroId))
+      map(opcoes => opcoes.filter(o => o.perguntaCadastroId === perguntaCadastroId)) //O filter percorre a lista e retorna somente valores que atendam a uma condição
     );
   }
 }

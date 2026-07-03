@@ -9,8 +9,14 @@ import { TipoUsuario } from '../shared/enums/TipoUsuario';
 import { ClienteService } from './cliente.service';
 import { MentorService } from './mentor.service';
 
+
+/* chaves para buscar os usuários no local storage pra setar no LS*/
+
 const CHAVE_SESSAO = 'usuario_sessao';
 const CHAVE_PAPEL = 'papel_ativo';
+
+/* Formato de resposta que o AuthService entrega depois do login
+ou cadastro */
 
 export interface ResultadoAcesso {
   usuario: Usuario;
@@ -33,14 +39,15 @@ export class AuthService {
    */
   login(email: string, senha: string, papel: TipoUsuario): Observable<ResultadoAcesso> {
     return this.http.get<Usuario[]>(`${this.API_BASE}/usuarios`).pipe(
-      map(usuarios => {
-        const usuario = usuarios.find(
+      map(usuarios => { //Vai pegar o resultado da API e transformar
+
+        const usuario = usuarios.find( //Percorre a lista encontrando um usuario que satisfaça as três condições(o email da api precisa bater com o do front, etc)
           u => u.email === email && u.senha === senha && u.status === 1
         );
         if (!usuario) throw new Error('Email ou senha inválidos');
         return usuario;
       }),
-      switchMap(usuario => this.assumirPapel(usuario, papel))
+      switchMap(usuario => this.assumirPapel(usuario, papel)) // metodo que vai ver se o usuário quer entrar como cliente ou mentor
     );
   }
 
@@ -81,7 +88,7 @@ export class AuthService {
       switchMap(perfil => {
         if (!perfil) {
           // Primeira vez que essa conta assume esse papel: cria o registro.
-          return this.criarPerfilPapel(usuario, papel).pipe(
+          return this.criarPerfilPapel(usuario, papel).pipe( //Chama o método CriarPerfilPapel abaixo
             map(() => ({ usuario, papel, precisaOnboarding: true }))
           );
         }
@@ -95,7 +102,7 @@ export class AuthService {
     );
   }
 
-  private criarPerfilPapel(usuario: Usuario, papel: TipoUsuario): Observable<Cliente | Mentor> {
+  private criarPerfilPapel(usuario: Usuario, papel: TipoUsuario): Observable<Cliente | Mentor> { //Liga o usuario a mentor ou cliente
     if (papel === TipoUsuario.Mentor) {
       return this.mentorService.criar({
         usuarioId: usuario.id,
@@ -117,7 +124,7 @@ export class AuthService {
 
   /**
    * Mantém o campo tipoUsuario do Usuario sincronizado com o último papel
-   * assumido na sessão (PUT /usuarios/:id).
+   * assumido na sessão (PUT /usuarios/:id) ou muda se tiver q mudar.
    */
   private atualizarTipoUsuario(usuario: Usuario, papel: TipoUsuario): Observable<Usuario> {
     if (usuario.tipoUsuario === papel) {

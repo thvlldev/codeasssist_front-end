@@ -23,50 +23,51 @@ export class DashboardComponent implements OnInit {
   private authService = inject(AuthService);
   private tecnologiaService = inject(TecnologiaService);
   private usuarioTecnologiaService = inject(UsuarioTecnologiaService);
-  private cdr = inject(ChangeDetectorRef);
+  private cdr = inject(ChangeDetectorRef);  // Força atualizações de tela
 
   dashboard!: DashboardData;
-  carregando = true;
+  carregando = true; //Quando tá carregando os dados = True mas quando para de carregar = False
 
-  modalTecnologiasAberto = false;
-  todasTecnologias: Tecnologia[] = [];
-  tecnologiasSelecionadas: number[] = [];
+  modalTecnologiasAberto = false; //Controla se o modal de tecnologias tá aberto
+  todasTecnologias: Tecnologia[] = []; //Guarda as tecnologias retornadas dentro de uma lista
+  tecnologiasSelecionadas: number[] = []; //Vai guardar as tecnologias selecionadas pelo usuário
   salvandoTecnologias = false;
 
   get ehMentor(): boolean {
     return this.authService.getPapelAtivo() === TipoUsuario.Mentor;
-  }
+  } //Vai verificar se o usuário está acessando como mentor
 
   get dashboardCliente(): DashboardCliente {
     return this.dashboard as DashboardCliente;
-  }
+  } //Pega dashboard padrão e puxa o dashboard cliente
 
   get dashboardMentor(): DashboardMentor {
     return this.dashboard as DashboardMentor;
-  }
+  } //Pega dashboard padrão e puxa o dashboard mentor
 
   ngOnInit(): void {
     this.carregarDados();
-  }
+  } //ngOnInit para carregar a página no momento que abrir o componente
 
   carregarDados(): void {
-    this.carregando = true;
-    const usuarioId = this.authService.getUsuarioId();
+    this.carregando = true; //Ativa o carregamento do componente conforme o papel do usuario
+    const usuarioId = this.authService.getUsuarioId(); //Pega o id do usuario logado
 
     if (!usuarioId) {
       this.carregando = false;
-      return;
+      return; //Se não tiver usuário logado, não vai buscar dashboard!
     }
 
     const obs$: Observable<DashboardData> = this.ehMentor
       ? this.dashboardService.buscarDashboardMentor(usuarioId)
       : this.dashboardService.buscarDashboardCliente(usuarioId);
+    //Um operador ternário para decidir se for mentor = buscar usuarioid dele se for cliente = buscar usuarioid dele e carregar dashboard relativo
 
-    obs$.subscribe({
+    obs$.subscribe({ //Observable executado pelo subscribe
       next: (dados: DashboardData) => {
-        this.dashboard = dados;
-        this.carregando = false;
-        this.cdr.detectChanges();
+        this.dashboard = dados; //Coloca os dados recebidos dentro de this.dashboard
+        this.carregando = false; //Desliga o carregamento
+        this.cdr.detectChanges(); //Força a tela a atualizar
       },
       error: (err: unknown) => {
         console.error('Erro ao carregar dashboard:', err);
@@ -76,11 +77,11 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  abrirModalTecnologias(): void {
+  abrirModalTecnologias(): void { //Abre o modal de tecnologias
     const usuarioId = this.authService.getUsuarioId();
     if (!usuarioId) return;
 
-    forkJoin([
+    forkJoin([ //Executa as requisições juntas e só continua quando ambas executarem
       this.tecnologiaService.listarTodas(),
       this.usuarioTecnologiaService.listarPorUsuario(usuarioId)
     ]).subscribe({
@@ -96,7 +97,8 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  toggleTecnologia(id: number): void {
+  toggleTecnologia(id: number): void { //Marca ou desmarca uma tecnologia no modal.
+
     const idx = this.tecnologiasSelecionadas.indexOf(id);
     if (idx >= 0) {
       this.tecnologiasSelecionadas.splice(idx, 1);
